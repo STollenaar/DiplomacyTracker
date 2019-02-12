@@ -2,6 +2,8 @@
 var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
+var parser = require('cheerio-tableparser');
+
 var fs = require('fs');
 
 var channelID;
@@ -45,19 +47,54 @@ bot.on('ready', function (evt) {
             state.Date = $('span.gameDate').text();
             botSendMessage("Date is now " + state.Date);
 
-            const members = $('div.membersFullTable tbody').children();
+            parser($);
+            var members = $('.membersFullTable').parsetable(false, false, true);
 
-            //fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
-            //    if (err) throw err;
-            //    console.log('complete');
-            //});
+            for (var i = 0; i < members[0].length; i++) {
+                //some weird data is undefined
+                if (members[1][i * 2] == undefined) {
+                    break;
+                }
+                //getting the player data
+                var country = members[0][i * 2];
+                var data = members[1][i * 2].split(",");
+                var name = data[0].split("(")[0].trim();
+                var supply_centers = data[1].split(" ")[3];
+                var units = data[2];
+
+                var found = false;
+
+                for (var p in state.Leaderboard) {
+                    //updating player data
+                    if (p.name == name) {
+                        found = true;
+                        if (p.supply_centers != supply_centers) {
+                            p.supply_centers = supply_centers;
+                        }
+                        if (p.units != units) {
+                            p.units = units;
+                        }
+                    }
+                }
+                if (!found) {
+                    //adding new player data
+                    let player = {
+                        "name": name,
+                        "country": country,
+                        "supply_centers": supply_centers,
+                        "units": units
+                    }
+                    state.Leaderboard.push(player);
+                }
+
+            }
+
+            fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
+                if (err) throw err;
+            });
         }
 
     });
-
-
-
-
 });
 
 bot.on('message', function (user, userID, channelID, message, evt) {
