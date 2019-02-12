@@ -3,14 +3,17 @@ var logger = require('winston');
 var auth = require('./auth.json');
 var request = require('request');
 var parser = require('cheerio-tableparser');
-
 var fs = require('fs');
+const cheerio = require('cheerio');
+
+var state = require('./state.json')[0];
+var site = "https://webdiplomacy.net/";
 
 var channelID;
 
-const cheerio = require('cheerio');
 
-var state = require('./state.json');
+
+
 var siteContent;
 
 
@@ -37,15 +40,14 @@ bot.on('ready', function (evt) {
     }
 
     httpGet(function (response) {
-        console.log("site set");
         siteContent = response;
 
         const $ = cheerio.load(siteContent);
 
         //checking if the data is current
-        if (state.Date.replace("-", ", ") != $('span.gameDate').text().replace) {
-            state.Date = $('span.gameDate').text();
-            botSendMessage("Date is now " + state.Date);
+        if (state.Date.replace("-", ", ") != $('span.gameDate').text()) {
+            state.Date = $('span.gameDate').text().replace(", ", "-");
+            botSendMessage("Date is now " + state.Date.replace("-", ", "));
 
             parser($);
             var members = $('.membersFullTable').parsetable(false, false, true);
@@ -89,35 +91,68 @@ bot.on('ready', function (evt) {
 
             }
 
-            fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
+            fs.writeFile('state.json', JSON.stringify([state], null, 2), 'utf8', function (err) {
                 if (err) throw err;
             });
         }
 
     });
+    console.log("loading complete");
 });
 
 bot.on('message', function (user, userID, channelID, message, evt) {
-    // Our bot needs to know if it will execute a command
-    // It will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!') {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
+    if (evt.d.mentions.length != 0 && evt.d.mentions[0].id == bot.id) {
 
-        args = args.splice(1);
+        var args = message.split(" ");
+        var cmd = args[1];
+        args = args.slice(2, args.length - 1).join(" ");
+
         switch (cmd) {
             // !ping
             case 'ping':
-                botSendMessage("pong");
-                // Just add any case commands if you want to..
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'pong'
+                });
                 break;
-            case 'site':
-                console.log(siteContent);
+            case 'leaderboard':
+            case 'standing':
+                bot.sendMessage({
+                    to: channelID,
+                    message: '',
+                    embed: {
+                        "fields": state.Leaderboard
+                    }
+                });
+                break;
+            case 'map':
+                var src = site + "map.php?gameID=" + state.GameID + "&turn=" + getLatestMapIndex()
+                console.log(src);
+                bot.sendMessage({
+                    to: channelID,
+                    message: '',
+                    embed: {
+                        "image": {
+                            "url": src
+                        }
+                    }
+                });
+                break;
+            default:
+                bot.sendMessage(args);
                 break;
         }
     }
 });
 
+//gets a correct map index
+function getLatestMapIndex() {
+    var season = state.Date.split("-")[0];
+    var year = state.Date.split("-")[1];
+
+    return (year - state.startYear) * 2 + (season == state.startSeason ? 0 : 1);
+
+}
 
 function botSendMessage(m) {
     bot.sendMessage({
@@ -129,7 +164,7 @@ function botSendMessage(m) {
 
 
 function httpGet(callback) {
-    request("https://webdiplomacy.net/board.php?gameID=236023", function (error, response, body) {
+    request(site + "board.php?gameID=" + state.GameID, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(body);
         }
