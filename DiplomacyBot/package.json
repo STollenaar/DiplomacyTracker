@@ -1,9 +1,13 @@
 {
   "name": "diplomacy-bot",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "DiplomacyBot",
-  "main": "server.js",
-  "author": {
-    "name": ""
+  "main": "bot.js",
+  "author": "Guitargun",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "request": "^2.88.0",
+    "winston": "^3.2.1"
   }
 }
