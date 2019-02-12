@@ -30,7 +30,7 @@ var bot = new Discord.Client({
 });
 
 bot.on('ready', function (evt) {
-    logger.info('Connected');
+    console.log('Connected');
 
     for (var channel in bot.channels) {
         if (bot.channels[channel].name == "diplomacy") {
@@ -90,7 +90,7 @@ bot.on('ready', function (evt) {
                 }
 
             }
-
+            //saving the new data
             fs.writeFile('state.json', JSON.stringify([state], null, 2), 'utf8', function (err) {
                 if (err) throw err;
             });
@@ -108,26 +108,27 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         args = args.slice(2, args.length - 1).join(" ");
 
         switch (cmd) {
-            // !ping
+           
             case 'ping':
                 bot.sendMessage({
                     to: channelID,
                     message: 'pong'
                 });
                 break;
-            case 'leaderboard':
             case 'standing':
                 bot.sendMessage({
                     to: channelID,
-                    message: '',
+                    message: 'Current standing as of '+ state.Date.replace("-", " "),
                     embed: {
-                        "fields": state.Leaderboard
+                        "fields": leaderBoardbuilder()
                     }
                 });
                 break;
             case 'map':
                 var src = site + "map.php?gameID=" + state.GameID + "&turn=" + getLatestMapIndex()
-                console.log(src);
+
+                // console.log(src);
+
                 bot.sendMessage({
                     to: channelID,
                     message: '',
@@ -137,9 +138,6 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                         }
                     }
                 });
-                break;
-            default:
-                bot.sendMessage(args);
                 break;
         }
     }
@@ -161,6 +159,17 @@ function botSendMessage(m) {
     });
 }
 
+function leaderBoardbuilder() {
+    var array = [];
+    for (var player in state.Leaderboard) {
+        elm = {
+            name: "Country: " + state.Leaderboard[player].country + ", Player by: " + state.Leaderboard[player].name,
+            value: "Supply-Centers: " + state.Leaderboard[player].supply_centers + ", Units: " + state.Leaderboard[player].units
+        }
+        array.push(elm);
+    }
+    return array;
+}
 
 
 function httpGet(callback) {
