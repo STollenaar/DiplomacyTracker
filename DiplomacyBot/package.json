@@ -1,0 +1,9 @@
+{
+  "name": "diplomacy-bot",
+  "version": "0.0.0",
+  "description": "DiplomacyBot",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  }
+}
