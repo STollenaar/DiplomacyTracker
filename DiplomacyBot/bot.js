@@ -1,13 +1,18 @@
 ﻿var Discord = require('discord.js');
 var auth = require('./auth.json');
 var request = require('request');
+var parser = require('cheerio-tableparser');
 var fs = require('fs');
+const cheerio = require('cheerio');
+
+var state = require('./state.json')[0];
+var site = "https://webdiplomacy.net/";
 
 var channelID;
 
-const cheerio = require('cheerio');
 
-var state = require('./state.json');
+
+
 var siteContent;
 
 
@@ -26,52 +31,117 @@ client.on('ready', function (evt) {
     }
 
     httpGet(function (response) {
-        console.log("site set");
         siteContent = response;
 
         const $ = cheerio.load(siteContent);
 
         //checking if the data is current
-        if (state.Date.replace("-", ", ") != $('span.gameDate').text().replace) {
-            state.Date = $('span.gameDate').text();
-            botSendMessage("Date is now " + state.Date);
+        if (state.Date.replace("-", ", ") != $('span.gameDate').text()) {
+            state.Date = $('span.gameDate').text().replace(", ", "-");
+            botSendMessage("Date is now " + state.Date.replace("-", ", "));
 
-            const members = $('div.membersFullTable tbody').children();
+            parser($);
+            var members = $('.membersFullTable').parsetable(false, false, true);
 
-            //fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
-            //    if (err) throw err;
-            //    console.log('complete');
-            //});
+            for (var i = 0; i < members[0].length; i++) {
+                //some weird data is undefined
+                if (members[1][i * 2] == undefined) {
+                    break;
+                }
+                //getting the player data
+                var country = members[0][i * 2];
+                var data = members[1][i * 2].split(",");
+                var name = data[0].split("(")[0].trim();
+                var supply_centers = data[1].split(" ")[3];
+                var units = data[2];
+
+                var found = false;
+
+                for (var p in state.Leaderboard) {
+                    //updating player data
+                    if (p.name == name) {
+                        found = true;
+                        if (p.supply_centers != supply_centers) {
+                            p.supply_centers = supply_centers;
+                        }
+                        if (p.units != units) {
+                            p.units = units;
+                        }
+                    }
+                }
+                if (!found) {
+                    //adding new player data
+                    let player = {
+                        "name": name,
+                        "country": country,
+                        "supply_centers": supply_centers,
+                        "units": units
+                    }
+                    state.Leaderboard.push(player);
+                }
+
+            }
+            //saving the new data
+            fs.writeFile('state.json', JSON.stringify([state], null, 2), 'utf8', function (err) {
+                if (err) throw err;
+            });
         }
 
     });
-
-
-
-
+    console.log("loading complete");
 });
 
 client.on('message', function (user, userID, channelID, message, evt) {
-    // Our bot needs to know if it will execute a command
-    // It will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!') {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
+    if (evt.d.mentions.length != 0 && evt.d.mentions[0].id == bot.id) {
 
-        args = args.splice(1);
+        var args = message.split(" ");
+        var cmd = args[1];
+        args = args.slice(2, args.length - 1).join(" ");
+
         switch (cmd) {
-            // !ping
+           
             case 'ping':
-                botSendMessage("pong");
-                // Just add any case commands if you want to..
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'pong'
+                });
                 break;
-            case 'site':
-                console.log(siteContent);
+            case 'standing':
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Current standing as of '+ state.Date.replace("-", " "),
+                    embed: {
+                        "fields": leaderBoardbuilder()
+                    }
+                });
+                break;
+            case 'map':
+                var src = site + "map.php?gameID=" + state.GameID + "&turn=" + getLatestMapIndex()
+
+                // console.log(src);
+
+                bot.sendMessage({
+                    to: channelID,
+                    message: '',
+                    embed: {
+                        "image": {
+                            "url": src
+                        }
+                    }
+                });
                 break;
         }
     }
 });
 
+//gets a correct map index
+function getLatestMapIndex() {
+    var season = state.Date.split("-")[0];
+    var year = state.Date.split("-")[1];
+
+    return (year - state.startYear) * 2 + (season == state.startSeason ? 0 : 1);
+
+}
 
 function botSendMessage(m) {
     client.sendMessage({
@@ -80,10 +150,21 @@ function botSendMessage(m) {
     });
 }
 
+function leaderBoardbuilder() {
+    var array = [];
+    for (var player in state.Leaderboard) {
+        elm = {
+            name: "Country: " + state.Leaderboard[player].country + ", Player by: " + state.Leaderboard[player].name,
+            value: "Supply-Centers: " + state.Leaderboard[player].supply_centers + ", Units: " + state.Leaderboard[player].units
+        }
+        array.push(elm);
+    }
+    return array;
+}
 
 
 function httpGet(callback) {
-    request("https://webdiplomacy.net/board.php?gameID=236023", function (error, response, body) {
+    request(site + "board.php?gameID=" + state.GameID, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(body);
         }
