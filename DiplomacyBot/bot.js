@@ -125,8 +125,46 @@ function helpCommandHandler(message) {
 //handles stuff for the leaderboard
 function leadboardCommandHandler(message) {
     const embed = new RichEmbed();
-    leaderBoardbuilder(embed);
+    const filter = (reaction, user) => {
+        return ['🚗','🏭','🇺🇳','🔤','❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+    };
+
+    leaderBoardbuilder(embed, -1);
     channel.send(embed);
+
+    //scrolling through map timeline
+    channel.send(embed).then(async embedMessage => {
+        await embedMessage.react('🚗');
+        await embedMessage.react('🏭');
+        await embedMessage.react('🇺🇳');
+        await embedMessage.react('🔤');
+        await embedMessage.react('❌');
+
+        const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+
+        collector.on('collect', (reaction, reactionCollector) => {
+            const editEmbed = new RichEmbed();
+
+            //scrolling correctly
+            switch (reaction.emoji.name) {
+                case '🚗':
+                    break;
+                case '🏭':
+                    break;
+                case '🇺🇳':
+                    break;
+                case '🔤':
+                    break;
+                case '❌':
+                    break;
+            }
+
+            //completing edit
+            editEmbed.setTitle(indexToDate());
+            editEmbed.setImage(getMapSrc(mapIndex));
+            embedMessage.edit(editEmbed);
+        });
+    });
 }
 
 //handles stuff for the map
@@ -178,7 +216,7 @@ function mapCommandHandler(message) {
             }
 
             //completing edit
-            editEmbed.setTitle(IndexToDate());
+            editEmbed.setTitle(indexToDate());
             editEmbed.setImage(getMapSrc(mapIndex));
             embedMessage.edit(editEmbed);
         });
@@ -220,11 +258,63 @@ function getLatestMapIndex(index) {
 }
 
 
-function leaderBoardbuilder(embed) {
-    for (var player in state.Leaderboard) {
+function leaderBoardArrayMaker(sortType) {
+    var array = [];
+    var data = [];
+    var sorted;
+    switch (sortType) {
+        //default
+        case -1:
+            for (const player in state.Leaderboard) {
+                data = [];
+                data.push(player.country, player.name, player.supply_centers, player.units);
+                array.push(data);
+            }
+            break;
+        //sorting by name
+        case 0:
+            sorted = state.Leaderboard.sort(function(a, b){
+                return a.name - b.name;
+            });
+            for (const player in sorted) {
+                data = [];
+                data.push(player.country, player.name, player.supply_centers, player.units);
+                array.push(data);
+            }
+
+            break;
+        //sorting by amount supply_centers
+        case 1:
+            sorted = state.Leaderboard.sort(function (a, b) {
+                return a.supply_centers - b.supply_centers;
+            });
+            for (const player in sorted) {
+                data = [];
+                data.push(player.country, player.name, player.supply_centers, player.units);
+                array.push(data);
+            }
+            break;
+        //sorting by amount units
+        case 2:
+            sorted = state.Leaderboard.sort(function (a, b) {
+                return a.units - b.units;
+            });
+            for (const player in sorted) {
+                data = [];
+                data.push(player.country, player.name, player.supply_centers, player.units);
+                array.push(data);
+            }
+            break;
+    }
+
+    return array;
+}
+
+function leaderBoardbuilder(embed, sortType) {
+    for (var player in leaderBoardArrayMaker(sortType)) {
         embed.addField(
-            "Country: " + state.Leaderboard[player].country + ", Played by: " + state.Leaderboard[player].name,
-            "Supply-Centers: " + state.Leaderboard[player].supply_centers + ", Units: " + state.Leaderboard[player].units
+            "Country: " + player[0] + ", Played by: " + player[1],
+            "Supply-Centers: " + player[2] + ", Units: " + player[3]
         );
     }
 }
