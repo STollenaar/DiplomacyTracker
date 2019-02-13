@@ -81,13 +81,15 @@ client.on('ready', function (evt) {
     console.log("loading complete");
 });
 
+
+//reacting on certain commands
 client.on('message', message => {
     if (message.isMentioned(client.user.id)) {
 
         var args = message.content.split(" ");
         var cmd = args[1];
         args = args.slice(2, args.length - 1).join(" ");
-        const embed = new RichEmbed();
+        
         switch (cmd) {
 
             case 'ping':
@@ -95,72 +97,100 @@ client.on('message', message => {
                 break;
             case 'leaderboard':
             case 'standing':
-                leaderBoardbuilder(embed);
-                channel.send(embed);
+                leadboardCommandHandler(message);
                 break;
             case 'map':
-                const filter = (reaction, user) => {
-                    return ['◀', '▶', '⏮','⏭'].includes(reaction.emoji.name) && user.id === message.author.id;
-                };
-
-                
-
-                embed.setImage(getMapSrc(-2));
-                embed.setTitle("Map as of " + state.Date.replace("-", " "));
-
-                //scrolling through map timeline
-                channel.send(embed).then(async embedMessage => {
-                    await embedMessage.react('⏮');
-                    await embedMessage.react('◀');
-                    await embedMessage.react('▶');
-                    await embedMessage.react('⏭');
-
-                    const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
-
-                    collector.on('collect', (reaction, reactionCollector) => {
-                        const editEmbed = new RichEmbed();
-
-                        //scrolling correctly
-                        switch (reaction.emoji.name) {
-                            case '◀':
-                                if (mapIndex > -1) {
-                                    mapIndex--;
-                                } else {
-                                    return;
-                                }
-                                break;
-                            case '▶':
-                                if (mapIndex < getLatestMapIndex(-2)) {
-                                    mapIndex++;
-                                } else {
-                                    return;
-                                }
-                                break;
-                            case '⏭':
-                                mapIndex = getLatestMapIndex(-2);
-                                break;
-                            case '⏮':
-                                mapIndex = -1;
-                                break;
-                        }
-
-                        //completing edit
-                        editEmbed.setTitle(IndexToDate());
-                        editEmbed.setImage(getMapSrc(mapIndex));
-                        embedMessage.edit(editEmbed);
-                    });
-                });
+                mapCommandHandler(message);
+                break;
+            case 'help':
+            default:
+                helpCommandHandler(message);
                 break;
         }
     }
 });
+
+//simple help handler
+function helpCommandHandler(message) {
+    const embed = new RichEmbed();
+    embed.setTitle("Commands:");
+    embed.addField("ping", "returns pong.. good for testing if the bot is dead.");
+    embed.addField("leaderboard/standing", "returns the current standing. Able to sort on different things.");
+    embed.addField("map", "Shows you the current map. Able to scroll through the different turns.");
+
+    channel.send(embed);
+}
+
+
+//handles stuff for the leaderboard
+function leadboardCommandHandler(message) {
+    const embed = new RichEmbed();
+    leaderBoardbuilder(embed);
+    channel.send(embed);
+}
+
+//handles stuff for the map
+function mapCommandHandler(message) {
+    const embed = new RichEmbed();
+    const filter = (reaction, user) => {
+        return ['◀', '▶', '⏮', '⏭'].includes(reaction.emoji.name) && user.id === message.author.id;
+    };
+
+
+
+    embed.setImage(getMapSrc(-2));
+    embed.setTitle("Map as of " + state.Date.replace("-", " "));
+
+    //scrolling through map timeline
+    channel.send(embed).then(async embedMessage => {
+        await embedMessage.react('⏮');
+        await embedMessage.react('◀');
+        await embedMessage.react('▶');
+        await embedMessage.react('⏭');
+
+        const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+
+        collector.on('collect', (reaction, reactionCollector) => {
+            const editEmbed = new RichEmbed();
+
+            //scrolling correctly
+            switch (reaction.emoji.name) {
+                case '◀':
+                    if (mapIndex > -1) {
+                        mapIndex--;
+                    } else {
+                        return;
+                    }
+                    break;
+                case '▶':
+                    if (mapIndex < getLatestMapIndex(-2)) {
+                        mapIndex++;
+                    } else {
+                        return;
+                    }
+                    break;
+                case '⏭':
+                    mapIndex = getLatestMapIndex(-2);
+                    break;
+                case '⏮':
+                    mapIndex = -1;
+                    break;
+            }
+
+            //completing edit
+            editEmbed.setTitle(IndexToDate());
+            editEmbed.setImage(getMapSrc(mapIndex));
+            embedMessage.edit(editEmbed);
+        });
+    });
+}
 
 function getMapSrc(index) {
     mapIndex = getLatestMapIndex(index);
     return site + "map.php?gameID=" + state.GameID + "&turn=" + mapIndex;
 }
 
-function IndexToDate() {
+function indexToDate() {
     var diff = Math.abs(mapIndex - getLatestMapIndex(-2));
 
     var season = state.Date.split("-")[0];
@@ -193,7 +223,7 @@ function getLatestMapIndex(index) {
 function leaderBoardbuilder(embed) {
     for (var player in state.Leaderboard) {
         embed.addField(
-            "Country: " + state.Leaderboard[player].country + ", Player by: " + state.Leaderboard[player].name,
+            "Country: " + state.Leaderboard[player].country + ", Played by: " + state.Leaderboard[player].name,
             "Supply-Centers: " + state.Leaderboard[player].supply_centers + ", Units: " + state.Leaderboard[player].units
         );
     }
