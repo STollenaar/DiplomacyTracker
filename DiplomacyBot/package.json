@@ -5,9 +5,13 @@
   "main": "bot.js",
   "author": "Guitargun",
   "dependencies": {
+    "bufferutil": "^4.0.1",
     "cheerio": "^1.0.0-rc.2",
     "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+    "discord.js": "^11.4.2",
+    "erlpack": "github:hammerandchisel/erlpack",
     "request": "^2.88.0",
+    "uws": "^99.0.0",
     "winston": "^3.2.1"
   }
 }

@@ -1,5 +1,4 @@
-﻿var Discord = require('discord.io');
-var logger = require('winston');
+﻿var Discord = require('discord.js');
 var auth = require('./auth.json');
 var request = require('request');
 var fs = require('fs');
@@ -12,22 +11,14 @@ var state = require('./state.json');
 var siteContent;
 
 
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(new logger.transports.Console, {
-    colorize: true
-});
-logger.level = 'debug';
+
 // Initialize Discord Bot
-var bot = new Discord.Client({
-    token: auth.token,
-    autorun: true
-});
+var client = new Discord.Client();
 
-bot.on('ready', function (evt) {
-    logger.info('Connected');
+client.on('ready', function (evt) {
+    console.log("Connected");
 
-    for (var channel in bot.channels) {
+    for (var channel in client.channels) {
         if (bot.channels[channel].name == "diplomacy") {
             channelID = channel;
             break;
@@ -60,7 +51,7 @@ bot.on('ready', function (evt) {
 
 });
 
-bot.on('message', function (user, userID, channelID, message, evt) {
+client.on('message', function (user, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     if (message.substring(0, 1) == '!') {
@@ -83,7 +74,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 
 
 function botSendMessage(m) {
-    bot.sendMessage({
+    client.sendMessage({
         to: channelID,
         message: m
     });
@@ -99,4 +90,7 @@ function httpGet(callback) {
     });
 
 }
+
+
+client.login(auth.token);
 
