@@ -1,0 +1,5 @@
+﻿discord.js
+cheerio
+cheerio-tableparser
+request
+fs

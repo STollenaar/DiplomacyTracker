@@ -35,6 +35,9 @@
     </Content>
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="requirements.txt">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="start.bat">
       <SubType>Code</SubType>
     </Content>
