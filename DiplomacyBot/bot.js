@@ -1,19 +1,19 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
-var auth = require('./auth.json');
-var request = require('request');
-var parser = require('cheerio-tableparser');
-var fs = require('fs');
+const auth = require('./auth.json');
+const request = require('request');
+const parser = require('cheerio-tableparser');
+const fs = require('fs');
 const cheerio = require('cheerio');
 
-var state = require('./state.json')[0];
-var site = "https://webdiplomacy.net/";
+let state = require('./state.json')[0];
+const site = "https://webdiplomacy.net/";
 
-var channel;
-var siteContent;
-var mapIndex = 0;
+let channel;
+let siteContent;
+let mapIndex = 0;
 
 // Initialize Discord Bot
-var client = new Client();
+const client = new Client();
 
 client.on('ready', function (evt) {
     console.log("Connected");
@@ -31,7 +31,7 @@ client.on('ready', function (evt) {
             channel.send("Date is now " + state.Date.replace("-", ", "));
 
             parser($);
-            var members = $('.membersFullTable').parsetable(false, false, true);
+            let members = $('.membersFullTable').parsetable(false, false, true);
 
             for (var i = 0; i < members[0].length; i++) {
                 //some weird data is undefined
@@ -39,15 +39,15 @@ client.on('ready', function (evt) {
                     break;
                 }
                 //getting the player data
-                var country = members[0][i * 2];
-                var data = members[1][i * 2].split(",");
-                var name = data[0].split("(")[0].trim();
-                var supply_centers = data[1].split(" ")[3];
-                var units = data[2];
+                let country = members[0][i * 2];
+                let data = members[1][i * 2].split(",");
+                let name = data[0].split("(")[0].trim();
+                let supply_centers = data[1].split(" ")[3];
+                let units = data[2];
 
-                var found = false;
+                let found = false;
 
-                for (var p in state.Leaderboard) {
+                for (let p in state.Leaderboard) {
                     //updating player data
                     if (p.name === name) {
                         found = true;
@@ -86,8 +86,8 @@ client.on('ready', function (evt) {
 client.on('message', message => {
     if (message.isMentioned(client.user.id)) {
 
-        var args = message.content.split(" ");
-        var cmd = args[1];
+        let args = message.content.split(" ");
+        let cmd = args[1];
         args = args.slice(2, args.length - 1).join(" ");
         
         switch (cmd) {
@@ -112,7 +112,7 @@ client.on('message', message => {
 
 //simple help handler
 function helpCommandHandler(message) {
-    const embed = new RichEmbed();
+    let embed = new RichEmbed();
     embed.setTitle("Commands:");
     embed.addField("ping", "returns pong.. good for testing if the bot is dead.");
     embed.addField("leaderboard/standing", "returns the current standing. Able to sort on different things.");
@@ -124,7 +124,7 @@ function helpCommandHandler(message) {
 
 //handles stuff for the leaderboard
 function leadboardCommandHandler(message) {
-    const embed = new RichEmbed();
+    let embed = new RichEmbed();
     const filter = (reaction, user) => {
         return ['🚗','🏭','🇺🇳','🔤','❌'].includes(reaction.emoji.name) && user.id === message.author.id;
     };
@@ -140,10 +140,10 @@ function leadboardCommandHandler(message) {
         await embedMessage.react('🔤');
         await embedMessage.react('❌');
 
-        const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+        let collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
         collector.on('collect', (reaction, reactionCollector) => {
-            const editEmbed = new RichEmbed();
+            let editEmbed = new RichEmbed();
 
             //scrolling correctly
             switch (reaction.emoji.name) {
@@ -169,7 +169,7 @@ function leadboardCommandHandler(message) {
 
 //handles stuff for the map
 function mapCommandHandler(message) {
-    const embed = new RichEmbed();
+    let embed = new RichEmbed();
     const filter = (reaction, user) => {
         return ['◀', '▶', '⏮', '⏭'].includes(reaction.emoji.name) && user.id === message.author.id;
     };
@@ -186,7 +186,7 @@ function mapCommandHandler(message) {
         await embedMessage.react('▶');
         await embedMessage.react('⏭');
 
-        const collector = embedMessage.createReactionCollector(filter, { time: 180000 });
+        let collector = embedMessage.createReactionCollector(filter, { time: 180000 });
 
         collector.on('collect', (reaction, reactionCollector) => {
             const editEmbed = new RichEmbed();
@@ -229,10 +229,10 @@ function getMapSrc(index) {
 }
 
 function indexToDate() {
-    var diff = Math.abs(mapIndex - getLatestMapIndex(-2));
+    let diff = Math.abs(mapIndex - getLatestMapIndex(-2));
 
-    var season = state.Date.split("-")[0];
-    var year = state.Date.split("-")[1];
+    let season = state.Date.split("-")[0];
+    let year = state.Date.split("-")[1];
 
     //switching the season correctly
     if (!(diff % 2 === 0)) {
@@ -251,21 +251,21 @@ function indexToDate() {
 function getLatestMapIndex(index) {
     if (index !== -2) return index;
     
-    var season = state.Date.split("-")[0];
-    var year = state.Date.split("-")[1];
+    let season = state.Date.split("-")[0];
+    let year = state.Date.split("-")[1];
 
-    return (year - state.startYear) * 2 + (season === state.startSeason ? 0 : 1)-1;//returning the correct map index
+    return (year - state.startYear) * 2 + (season === state.startSeason ? 0 : 1);//returning the correct map index
 }
 
 
 function leaderBoardArrayMaker(sortType) {
-    var array = [];
-    var data = [];
-    var sorted;
+    let array = [];
+    let data = [];
+    let sorted;
     switch (sortType) {
         //default
         case -1:
-            for (const player in state.Leaderboard) {
+            for (let player in state.Leaderboard) {
                 data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
@@ -276,7 +276,7 @@ function leaderBoardArrayMaker(sortType) {
             sorted = state.Leaderboard.sort(function(a, b){
                 return a.name - b.name;
             });
-            for (const player in sorted) {
+            for (let player in sorted) {
                 data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
@@ -288,7 +288,7 @@ function leaderBoardArrayMaker(sortType) {
             sorted = state.Leaderboard.sort(function (a, b) {
                 return a.supply_centers - b.supply_centers;
             });
-            for (const player in sorted) {
+            for (let player in sorted) {
                 data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
@@ -299,7 +299,7 @@ function leaderBoardArrayMaker(sortType) {
             sorted = state.Leaderboard.sort(function (a, b) {
                 return a.units - b.units;
             });
-            for (const player in sorted) {
+            for (let player in sorted) {
                 data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
@@ -311,7 +311,7 @@ function leaderBoardArrayMaker(sortType) {
 }
 
 function leaderBoardbuilder(embed, sortType) {
-    for (var player in leaderBoardArrayMaker(sortType)) {
+    for (let player in leaderBoardArrayMaker(sortType)) {
         embed.addField(
             "Country: " + player[0] + ", Played by: " + player[1],
             "Supply-Centers: " + player[2] + ", Units: " + player[3]
