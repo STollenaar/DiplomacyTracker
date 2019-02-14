@@ -1,5 +1,7 @@
 ﻿discord.js
+winston
 cheerio
 cheerio-tableparser
 request
 fs
+https://github.com/woor/discord.io/tarball/gateway_v6

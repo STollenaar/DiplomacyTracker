@@ -5,7 +5,7 @@ const parser = require('cheerio-tableparser');
 const fs = require('fs');
 const cheerio = require('cheerio');
 
-let state = require('./state.json')[0];
+let state = require('./state.json');
 let game = state.Games[0];
 const site = "https://webdiplomacy.net/";
 
@@ -76,7 +76,7 @@ client.on('ready', function (evt) {
                         "country": country,
                         "supply_centers": supply_centers,
                         "units": units
-                    }
+                    };
                     game.Leaderboard.push(player);
                 }
 
@@ -137,11 +137,11 @@ function helpCommandHandler(message) {
 function leadboardCommandHandler(message) {
     let embed = new RichEmbed();
     const filter = (reaction, user) => {
-        return ['🚗', '🏭', '🇳🇱󠁢󠁥', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+        console.log(['🚗', '🏭', channel.guild.emojis.get(':flag_nl:'), '🔤', '❌'].includes(reaction.emoji.name));
+        return ['🚗', '🏭', channel.guild.emojis.get(':flag_nl:'), '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
     };
 
     leaderBoardbuilder(embed, -1);
-    channel.send(embed);
 
     //scrolling through map timeline
     channel.send(embed).then(async embedMessage => {
@@ -159,20 +159,24 @@ function leadboardCommandHandler(message) {
             //scrolling correctly
             switch (reaction.emoji.name) {
                 case '🚗':
+                    leaderBoardbuilder(editEmbed, 2);
                     break;
                 case '🏭':
+                    leaderBoardbuilder(editEmbed, 1);
                     break;
-                case '🏴󠁧󠁢󠁥󠁮󠁧󠁿':
+                case '🇳🇱󠁧󠁢󠁥󠁮󠁧󠁿':
+                    leaderBoardbuilder(editEmbed, 3);
                     break;
                 case '🔤':
+                    leaderBoardbuilder(editEmbed, 0);
                     break;
                 case '❌':
+                    leaderBoardbuilder(editEmbed, -1);
                     break;
             }
 
             //completing edit
-            editEmbed.setTitle(indexToDate());
-            editEmbed.setImage(getMapSrc(mapIndex));
+            editEmbed.setTitle(embed.title);
             embedMessage.edit(editEmbed);
         });
     });
@@ -242,8 +246,8 @@ function getMapSrc(index) {
 function indexToDate() {
     let diff = Math.abs(mapIndex - getLatestMapIndex(-2));
 
-    let season = state.Date.split("-")[0];
-    let year = state.Date.split("-")[1];
+    let season = game.Date.split("-")[0];
+    let year = game.Date.split("-")[1];
 
     //switching the season correctly
     if (!(diff % 2 === 0)) {
@@ -261,23 +265,23 @@ function indexToDate() {
 //gets a correct map index
 function getLatestMapIndex(index) {
     if (index !== -2) return index;
-    
-    let season = state.Date.split("-")[0];
-    let year = state.Date.split("-")[1];
 
-    return (year - state.startYear) * 2 + (season === state.startSeason ? 0 : 1);//returning the correct map index
+    let season = game.Date.split("-")[0];
+    let year = game.Date.split("-")[1];
+
+    return (year - game.startYear) * 2 + (season === game.startSeason ? 0 : 1);//returning the correct map index
 }
 
 
 function leaderBoardArrayMaker(sortType) {
     let array = [];
-    let data = [];
     let sorted;
     switch (sortType) {
         //default
         case -1:
-            for (let player in state.Leaderboard) {
-                data = [];
+            for (let player in game.Leaderboard) {
+                player = game.Leaderboard[player];
+                let data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
             }
@@ -285,10 +289,13 @@ function leaderBoardArrayMaker(sortType) {
         //sorting by name
         case 0:
             sorted = game.Leaderboard.sort(function (a, b) {
-                return a.name - b.name;
+                a = a.name.toLowerCase();
+                b = b.name.toLowerCase();
+                return a < b ? -1 : a > b ? 1 : 0;
             });
             for (let player in sorted) {
-                data = [];
+                player = game.Leaderboard[player];
+                let data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
             }
@@ -297,10 +304,11 @@ function leaderBoardArrayMaker(sortType) {
         //sorting by amount supply_centers
         case 1:
             sorted = game.Leaderboard.sort(function (a, b) {
-                return a.supply_centers - b.supply_centers;
+                return b.supply_centers - a.supply_centers;
             });
             for (let player in sorted) {
-                data = [];
+                player = game.Leaderboard[player];
+                let data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
             }
@@ -308,21 +316,37 @@ function leaderBoardArrayMaker(sortType) {
         //sorting by amount units
         case 2:
             sorted = game.Leaderboard.sort(function (a, b) {
-                return a.units - b.units;
+                return b.units - a.units;
             });
             for (let player in sorted) {
-                data = [];
+                player = game.Leaderboard[player];
+                let data = [];
+                data.push(player.country, player.name, player.supply_centers, player.units);
+                array.push(data);
+            }
+            break;
+        //sort by country
+        case 3:
+            sorted = game.Leaderboard.sort(function (a, b) {
+                a = a.country.toLowerCase();
+                b = b.country.toLowerCase();
+                return a < b ? -1 : a > b ? 1 : 0;
+            });
+            for (let player in sorted) {
+                player = game.Leaderboard[player];
+                let data = [];
                 data.push(player.country, player.name, player.supply_centers, player.units);
                 array.push(data);
             }
             break;
     }
-
     return array;
 }
 
 function leaderBoardbuilder(embed, sortType) {
-    for (let player in leaderBoardArrayMaker(sortType)) {
+    let array = leaderBoardArrayMaker(sortType);
+    for (let player in array) {
+        player = array[player];
         embed.addField(
             "Country: " + player[0] + ", Played by: " + player[1],
             "Supply-Centers: " + player[2] + ", Units: " + player[3]
