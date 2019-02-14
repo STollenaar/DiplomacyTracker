@@ -6,6 +6,7 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 
 let state = require('./state.json')[0];
+let game = state.Games[0];
 const site = "https://webdiplomacy.net/";
 
 let channel;
@@ -18,7 +19,16 @@ const client = new Client();
 client.on('ready', function (evt) {
     console.log("Connected");
 
-    channel = client.channels.find(ch => ch.name === "diplomacy");
+    if (state.Debug) {
+        for (let guild in client.guilds.array()) {
+            if (client.guilds.array()[guild].id === state.DebugServer) {
+                channel = client.guilds.array()[guild].channels.find(ch => ch.name === "diplomacy");
+                break;
+            }
+        }
+    } else {
+        channel = client.channels.find(ch => ch.name === "diplomacy");
+    }
 
     httpGet(function (response) {
         siteContent = response;
@@ -26,9 +36,9 @@ client.on('ready', function (evt) {
         const $ = cheerio.load(siteContent);
 
         //checking if the data is current
-        if (state.Date.replace("-", ", ") !== $('span.gameDate').text()) {
-            state.Date = $('span.gameDate').text().replace(", ", "-");
-            channel.send("Date is now " + state.Date.replace("-", ", "));
+        if (game.Date.replace("-", ", ") !== $('span.gameDate').text()) {
+            game.Date = $('span.gameDate').text().replace(", ", "-");
+            channel.send("Date is now " + game.Date.replace("-", ", "));
 
             parser($);
             let members = $('.membersFullTable').parsetable(false, false, true);
@@ -67,12 +77,13 @@ client.on('ready', function (evt) {
                         "supply_centers": supply_centers,
                         "units": units
                     }
-                    state.Leaderboard.push(player);
+                    game.Leaderboard.push(player);
                 }
 
             }
             //saving the new data
-            fs.writeFile('state.json', JSON.stringify([state], null, 2), 'utf8', function (err) {
+            state.Games[0] = game;
+            fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
                 if (err) throw err;
             });
         }
@@ -84,12 +95,12 @@ client.on('ready', function (evt) {
 
 //reacting on certain commands
 client.on('message', message => {
-    if (message.isMentioned(client.user.id)) {
+    if (message.isMentioned(client.user.id) && message.channel.id === channel.id) {
 
         let args = message.content.split(" ");
         let cmd = args[1];
         args = args.slice(2, args.length - 1).join(" ");
-        
+
         switch (cmd) {
 
             case 'ping':
@@ -126,7 +137,7 @@ function helpCommandHandler(message) {
 function leadboardCommandHandler(message) {
     let embed = new RichEmbed();
     const filter = (reaction, user) => {
-        return ['🚗','🏭','🇺🇳','🔤','❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+        return ['🚗', '🏭', '🇳🇱󠁢󠁥', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
     };
 
     leaderBoardbuilder(embed, -1);
@@ -136,7 +147,7 @@ function leadboardCommandHandler(message) {
     channel.send(embed).then(async embedMessage => {
         await embedMessage.react('🚗');
         await embedMessage.react('🏭');
-        await embedMessage.react('🇺🇳');
+        await embedMessage.react('🇳🇱');
         await embedMessage.react('🔤');
         await embedMessage.react('❌');
 
@@ -151,7 +162,7 @@ function leadboardCommandHandler(message) {
                     break;
                 case '🏭':
                     break;
-                case '🇺🇳':
+                case '🏴󠁧󠁢󠁥󠁮󠁧󠁿':
                     break;
                 case '🔤':
                     break;
@@ -177,7 +188,7 @@ function mapCommandHandler(message) {
 
 
     embed.setImage(getMapSrc(-2));
-    embed.setTitle("Map as of " + state.Date.replace("-", " "));
+    embed.setTitle("Map as of " + game.Date.replace("-", " "));
 
     //scrolling through map timeline
     channel.send(embed).then(async embedMessage => {
@@ -225,7 +236,7 @@ function mapCommandHandler(message) {
 
 function getMapSrc(index) {
     mapIndex = getLatestMapIndex(index);
-    return site + "map.php?gameID=" + state.GameID + "&turn=" + mapIndex;
+    return site + "map.php?gameID=" + game.GameID + "&turn=" + mapIndex;
 }
 
 function indexToDate() {
@@ -273,7 +284,7 @@ function leaderBoardArrayMaker(sortType) {
             break;
         //sorting by name
         case 0:
-            sorted = state.Leaderboard.sort(function(a, b){
+            sorted = game.Leaderboard.sort(function (a, b) {
                 return a.name - b.name;
             });
             for (let player in sorted) {
@@ -285,7 +296,7 @@ function leaderBoardArrayMaker(sortType) {
             break;
         //sorting by amount supply_centers
         case 1:
-            sorted = state.Leaderboard.sort(function (a, b) {
+            sorted = game.Leaderboard.sort(function (a, b) {
                 return a.supply_centers - b.supply_centers;
             });
             for (let player in sorted) {
@@ -296,7 +307,7 @@ function leaderBoardArrayMaker(sortType) {
             break;
         //sorting by amount units
         case 2:
-            sorted = state.Leaderboard.sort(function (a, b) {
+            sorted = game.Leaderboard.sort(function (a, b) {
                 return a.units - b.units;
             });
             for (let player in sorted) {
@@ -321,7 +332,7 @@ function leaderBoardbuilder(embed, sortType) {
 
 
 function httpGet(callback) {
-    request(site + "board.php?gameID=" + state.GameID, function (error, response, body) {
+    request(site + "board.php?gameID=" + game.GameID, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(body);
         }
