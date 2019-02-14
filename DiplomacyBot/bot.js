@@ -18,9 +18,10 @@ var client = new Client();
 
 client.on('ready', function (evt) {
     console.log("Connected");
+
     if (state.Debug) {
         for (let guild in client.guilds.array()) {
-            if (client.guilds.array()[guild].id == state.DebugServer) {
+            if (client.guilds.array()[guild].id === state.DebugServer) {
                 channel = client.guilds.array()[guild].channels.find(ch => ch.name === "diplomacy");
                 break;
             }
@@ -136,7 +137,7 @@ function helpCommandHandler(message) {
 function leadboardCommandHandler(message) {
     const embed = new RichEmbed();
     const filter = (reaction, user) => {
-        return ['🚗', '🏭', '🏴', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+        return ['🚗', '🏭', '🇳🇱󠁢󠁥', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
     };
 
     leaderBoardbuilder(embed, -1);
@@ -146,7 +147,7 @@ function leadboardCommandHandler(message) {
     channel.send(embed).then(async embedMessage => {
         await embedMessage.react('🚗');
         await embedMessage.react('🏭');
-        await embedMessage.react('🏴󠁧󠁢󠁥󠁮󠁧󠁿');
+        await embedMessage.react('🇳🇱');
         await embedMessage.react('🔤');
         await embedMessage.react('❌');
 
