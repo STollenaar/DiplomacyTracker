@@ -44,7 +44,7 @@ client.on('ready', function (evt) {
         //checking if the data is current
         if (game.Date.replace("-", ", ") !== $('span.gameDate').text()) {
             game.Date = $('span.gameDate').text().replace(", ", "-");
-            channel.send("Date is now " + game.Date.replace("-", ", "));
+            channel.send(`Date is now ${game.Date.replace('-', ', ')}`);
 
             parser($);
             let members = $('.membersFullTable').parsetable(false, false, true);
@@ -141,7 +141,7 @@ function helpCommandHandler(message) {
 }
 
 function httpGet(callback) {
-    request(site + "board.php?gameID=" + game.GameID, function (error, response, body) {
+    request(`${site}board.php?gameID=${game.GameID}`, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(body);
         }

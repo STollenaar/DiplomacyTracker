@@ -1,6 +1,28 @@
 ﻿let game;
 let RichEmbed;
 
+
+const sortingFunctions = {
+    '-1': () => { },
+    '0': (a, b) => {
+        a = a.name.toLowerCase();
+        b = b.name.toLowerCase();
+        return a < b ? -1 : a > b ? 1 : 0;
+    },
+    '1': (a, b) => {
+        return b.supply_centers - a.supply_centers;
+    },
+    '2': (a, b) => {
+        return b.units - a.units;
+    },
+    '3': (a, b) => {
+        a = a.country.toLowerCase();
+        b = b.country.toLowerCase();
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+};
+
+
 module.exports = {
 
     init(rich, g) {
@@ -59,70 +81,12 @@ module.exports = {
 
     leaderBoardArrayMaker: function (sortType) {
         let array = [];
-        let sorted;
-        switch (sortType) {
-            //default
-            case -1:
-                for (let player in game.Leaderboard) {
-                    player = game.Leaderboard[player];
-                    let data = [];
-                    data.push(player.country, player.name, player.supply_centers, player.units);
-                    array.push(data);
-                }
-                break;
-            //sorting by name
-            case 0:
-                sorted = game.Leaderboard.sort(function (a, b) {
-                    a = a.name.toLowerCase();
-                    b = b.name.toLowerCase();
-                    return a < b ? -1 : a > b ? 1 : 0;
-                });
-                for (let player in sorted) {
-                    player = game.Leaderboard[player];
-                    let data = [];
-                    data.push(player.country, player.name, player.supply_centers, player.units);
-                    array.push(data);
-                }
-
-                break;
-            //sorting by amount supply_centers
-            case 1:
-                sorted = game.Leaderboard.sort(function (a, b) {
-                    return b.supply_centers - a.supply_centers;
-                });
-                for (let player in sorted) {
-                    player = game.Leaderboard[player];
-                    let data = [];
-                    data.push(player.country, player.name, player.supply_centers, player.units);
-                    array.push(data);
-                }
-                break;
-            //sorting by amount units
-            case 2:
-                sorted = game.Leaderboard.sort(function (a, b) {
-                    return b.units - a.units;
-                });
-                for (let player in sorted) {
-                    player = game.Leaderboard[player];
-                    let data = [];
-                    data.push(player.country, player.name, player.supply_centers, player.units);
-                    array.push(data);
-                }
-                break;
-            //sort by country
-            case 3:
-                sorted = game.Leaderboard.sort(function (a, b) {
-                    a = a.country.toLowerCase();
-                    b = b.country.toLowerCase();
-                    return a < b ? -1 : a > b ? 1 : 0;
-                });
-                for (let player in sorted) {
-                    player = game.Leaderboard[player];
-                    let data = [];
-                    data.push(player.country, player.name, player.supply_centers, player.units);
-                    array.push(data);
-                }
-                break;
+        const sorted = game.Leaderboard.sort(sortingFunctions[String(sortType)]);//getting the sorted data
+        for (let player in sorted) {
+            player = game.Leaderboard[player];
+            let data = [];
+            data.push(player.country, player.name, player.supply_centers, player.units);//building data
+            array.push(data);
         }
         return array;
     },
@@ -132,8 +96,8 @@ module.exports = {
         for (let player in array) {
             player = array[player];
             embed.addField(
-                "Country: " + player[0] + ", Played by: " + player[1],
-                "Supply-Centers: " + player[2] + ", Units: " + player[3]
+                `Country: ${player[0]}, Played by: ${player[1]}`,
+                `Supply-Centers: ${player[2]}, Units: ${player[3]}`
             );
         }
     }

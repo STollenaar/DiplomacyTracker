@@ -23,7 +23,7 @@ module.exports = {
 
 
         embed.setImage(module.exports.getMapSrc(-2));
-        embed.setTitle("Map as of " + game.Date.replace("-", " "));
+        embed.setTitle(`Map as of ${game.Date.replace('-', ' ')}`);
 
         //scrolling through map timeline
         message.channel.send(embed).then(async embedMessage => {
@@ -71,7 +71,7 @@ module.exports = {
 
     getMapSrc: function (index) {
         mapIndex = module.exports.getLatestMapIndex(index);
-        return site + "map.php?gameID=" + game.GameID + "&turn=" + mapIndex;
+        return `${ site }map.php?gameID=${game.GameID}&turn=${mapIndex}`;
     },
 
     indexToDate: function () {
