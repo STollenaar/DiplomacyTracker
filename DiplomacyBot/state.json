@@ -12,25 +12,25 @@
         {
           "name": "Taylorx20",
           "country": "England",
-          "supply_centers": "9",
+          "supply_centers": "10",
           "units": " 9 units"
         },
         {
           "name": "JanitorDan",
           "country": "Austria",
-          "supply_centers": "7",
+          "supply_centers": "8",
           "units": " 7 units"
         },
         {
           "name": "Guitargun",
           "country": "France",
-          "supply_centers": "5",
+          "supply_centers": "6",
           "units": " 5 units"
         },
         {
           "name": "nint8835",
           "country": "Italy",
-          "supply_centers": "4",
+          "supply_centers": "3",
           "units": " 4 units"
         },
         {
@@ -42,17 +42,26 @@
         {
           "name": "ZiNK38",
           "country": "Germany",
-          "supply_centers": "3",
+          "supply_centers": "2",
           "units": " 2 units"
         },
         {
           "name": "jacobCritch",
           "country": "Russia",
-          "supply_centers": "2",
+          "supply_centers": "1",
           "units": " 1 units"
         }
       ],
-      "Subscriptions": {}
+      "Subscriptions": [
+        [
+          "guitargun",
+          []
+        ],
+        [
+          "jacobcritch",
+          []
+        ]
+      ]
     }
   ]
 }

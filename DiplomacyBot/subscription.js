@@ -13,9 +13,7 @@ module.exports = {
     init(s, g) {
         sitecontent = s;
         game = g;
-        console.log(game.Subscriptions);
-
-      //  this.subscribers = new Map(game.Subscriptions);
+        this.subscribers = new Map(game.Subscriptions);
 
         for (let player in game.Leaderboard) {
             player = game.Leaderboard[player];
@@ -53,7 +51,7 @@ module.exports = {
             if (this.subscribers.get(args[0].toLowerCase()) === undefined) {
                 this.subscribers.set(args[0].toLowerCase(), []);
             }
-            let person = {"id": message.author.id.toString(), "channel": message.channel.id.toString() };
+            let person = { "id": message.author.id.toString(), "channel": message.channel.id.toString() };
             //adding user to the list
             this.subscribers.get(args[0].toLowerCase()).push(person);
             message.reply(`You have now been subscribed to ${args[0]}`);
@@ -68,9 +66,8 @@ module.exports = {
 
                 //removing user from the list
                 let subs = this.subscribers.get(args[0].toLowerCase());
-                console.log(subs);
-                subs = subs.splice(subs.findIndex(x => x.id === message.author.id), 1);
-                console.log(subs);
+                const index = subs.findIndex(x => x.id === message.author.id);
+                subs.splice(index, 1);//removing from the array
                 this.subscribers.set(args[0].toLowerCase(), subs);
                 message.reply(`You have been unsubscribed from ${args[0]}`);
                 game.Subscriptions = this.subscribers;
@@ -79,7 +76,7 @@ module.exports = {
 
     },
 
-    notReady: function(channel) {
+    notReady: function (channel) {
         const $ = cheerio.load(sitecontent);
         parser($);
         let countries = $('.membersFullTable').parsetable(false, false, false)[0];

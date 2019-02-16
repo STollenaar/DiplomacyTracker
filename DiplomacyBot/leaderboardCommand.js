@@ -30,7 +30,9 @@ module.exports = {
         game = g;
         return this;
     },
-
+    setGame: function (g) {
+        game = g;
+    },
     //handles stuff for the leaderboard
     CommandHandler: function (message) {
         let embed = new RichEmbed();

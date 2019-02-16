@@ -13,6 +13,9 @@ module.exports = {
         return this;
     },
 
+    setGame: function (g) {
+        game = g;
+    },
 
     CommandHandler: function (message) {
         let embed = new RichEmbed();
@@ -69,6 +72,15 @@ module.exports = {
         });
     },
 
+
+    mapUpdate: function (message) {
+        let embed = new RichEmbed();
+
+        embed.setImage(this.getMapSrc(-2));
+        embed.setTitle(message.content);
+        message.edit(embed)
+    },
+
     getMapSrc: function (index) {
         mapIndex = this.getLatestMapIndex(index);
         return `${ site }map.php?gameID=${game.GameID}&turn=${mapIndex}`;
@@ -77,7 +89,7 @@ module.exports = {
     indexToDate: function () {
         let diff = Math.abs(mapIndex - this.getLatestMapIndex(-2));
 
-        let { season, year } = game.Date.split("-");
+        let [season, year]= game.Date.split("-");
 
         //switching the season correctly
         if (!(diff % 2 === 0)) {
@@ -96,8 +108,7 @@ module.exports = {
     getLatestMapIndex: function (index) {
         if (index !== -2) return index;
 
-        let { season, year } = game.Date.split("-")[0];
-
+        let [season, year] = game.Date.split("-");
         return (year - game.startYear) * 2 + (season === game.startSeason ? 0 : 1);//returning the correct map index
     }
 

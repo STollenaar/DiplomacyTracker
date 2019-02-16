@@ -12,12 +12,17 @@ let channel;
 let state;
 let game;
 
+let mapHandler;
+let leaderboardHanlder;
 
 module.exports = {
-    init(s, c) {
+    init(s, c, m, l) {
         state = s;
         game = s.Games[0];
         channel = c;
+        mapHandler = m;
+        leaderboardHanlder = l;
+
         subscriptionHandler = require('./subscription').init(null, game);
 
         //interval timer
@@ -39,7 +44,17 @@ module.exports = {
             //checking if the data is current
             if (game.Date.replace("-", ", ") !== $('span.gameDate').text()) {
                 game.Date = $('span.gameDate').text().replace(", ", "-");
-                channel.forEach(function (e) { e.send(`Date is now ${game.Date.replace('-', ', ')}`); });
+
+                //updating values
+                mapHandler.setGame(game);
+                leaderboardHanlder.setGame(game);
+
+                //announcing the new date and sending a new map to the channel
+                channel.forEach(function (e) {
+                    e.send(`Date is now ${game.Date.replace('-', ', ')}`)
+                        .then(message => mapHandler.mapUpdate(message));
+                });
+
                 let members = $('.membersFullTable').parsetable(false, false, true);
 
                 for (var i = 0; i < members[0].length; i++) {
@@ -56,8 +71,9 @@ module.exports = {
 
                     let found = false;
 
-                    for (let p in state.Leaderboard) {
+                    for (let p in game.Leaderboard) {
                         //updating player data
+                        p = game.Leaderboard[p];
                         if (p.name === name) {
                             found = true;
                             if (p.supply_centers !== supply_centers) {
@@ -97,6 +113,7 @@ module.exports = {
 
     },
 
+
     subParser: function (message) {
         subscriptionHandler.CommandHandler(message);
     },
@@ -104,10 +121,10 @@ module.exports = {
     saveState: function () {
         console.log("Saving state");
 
-        game.Subscriptions = subscriptionHandler.getGame().Subscriptions;
+        game.Subscriptions = Array.from(subscriptionHandler.getGame().Subscriptions);
         //saving the new data
         state.Games[0] = game;
-        console.log(game.Subscriptions);
+
         fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
             if (err) throw err;
         });

@@ -31,7 +31,7 @@ client.on('ready', function (evt) {
         let cTemp = client.channels.find(ch => ch.name === "diplomacy");
         channel.set(cTemp.guild.id, cTemp);
     }
-    scheduler = require('./scheduler').init(state, channel);
+    scheduler = require('./scheduler').init(state, channel, mapHandler, leadboardHandler);
     
     console.log("loading complete");
 });
