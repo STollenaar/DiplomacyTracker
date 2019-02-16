@@ -82,6 +82,8 @@ function helpCommandHandler(message) {
     embed.addField("ping", "returns pong.. good for testing if the bot is dead.");
     embed.addField("leaderboard/standing", "returns the current standing. Able to sort on different things.");
     embed.addField("map", "Shows you the current map. Able to scroll through the different turns.");
+    embed.addField("subscribe", "Allows you to subscribe to a player. You will be notified every hour if you need to make a move.");
+    embed.addField("unsubscribe", "Removes you from the subscription of a player.");
 
     message.reply(embed);
 }
