@@ -38,10 +38,10 @@ module.exports = {
             return ['🚗', '🏭', '🌎', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
         };
 
-        module.exports.leaderBoardbuilder(embed, -1);
+        this.leaderBoardbuilder(embed, -1);
 
         //scrolling through map timeline
-        message.channel.send(embed).then(async embedMessage => {
+        message.reply(embed).then(async embedMessage => {
             await embedMessage.react('🚗');
             await embedMessage.react('🏭');
             await embedMessage.react('🌎');
@@ -53,22 +53,22 @@ module.exports = {
             collector.on('collect', (reaction, reactionCollector) => {
                 let editEmbed = new RichEmbed();
 
-                //scrolling correctly
+                //sorting correctly
                 switch (reaction.emoji.name) {
                     case '🚗':
-                        module.exports.leaderBoardbuilder(editEmbed, 2);
+                        this.leaderBoardbuilder(editEmbed, 2);
                         break;
                     case '🏭':
-                        module.exports.leaderBoardbuilder(editEmbed, 1);
+                        this.leaderBoardbuilder(editEmbed, 1);
                         break;
                     case '🌎':
-                        module.exports.leaderBoardbuilder(editEmbed, 3);
+                        this.leaderBoardbuilder(editEmbed, 3);
                         break;
                     case '🔤':
-                        module.exports.leaderBoardbuilder(editEmbed, 0);
+                        this.leaderBoardbuilder(editEmbed, 0);
                         break;
                     case '❌':
-                        module.exports.leaderBoardbuilder(editEmbed, -1);
+                        this.leaderBoardbuilder(editEmbed, -1);
                         break;
                 }
 
@@ -92,7 +92,7 @@ module.exports = {
     },
 
     leaderBoardbuilder: function (embed, sortType) {
-        let array = module.exports.leaderBoardArrayMaker(sortType);
+        let array = this.leaderBoardArrayMaker(sortType);
         for (let player in array) {
             player = array[player];
             embed.addField(

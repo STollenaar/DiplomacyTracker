@@ -1,56 +1,58 @@
 {
   "Debug": true,
   "DebugServer": "544911814886948865",
+  "IntervalTimeInSeconds": 60,
   "Games": [
     {
       "GameID": 236023,
       "startSeason": "Spring",
       "startYear": "1901",
-      "Date": "Spring-1906",
+      "Date": "Autumn-1906",
       "Leaderboard": [
         {
           "name": "Taylorx20",
           "country": "England",
-          "supply_centers": "7",
-          "units": "7"
-        },
-        {
-          "name": "Guitargun",
-          "country": "France",
-          "supply_centers": "7",
-          "units": "6"
+          "supply_centers": "9",
+          "units": " 9 units"
         },
         {
           "name": "JanitorDan",
           "country": "Austria",
-          "supply_centers": "6",
-          "units": "6"
+          "supply_centers": "7",
+          "units": " 7 units"
+        },
+        {
+          "name": "Guitargun",
+          "country": "France",
+          "supply_centers": "5",
+          "units": " 5 units"
+        },
+        {
+          "name": "nint8835",
+          "country": "Italy",
+          "supply_centers": "4",
+          "units": " 4 units"
         },
         {
           "name": "Nothing2",
           "country": "Turkey",
           "supply_centers": "4",
-          "units": "4"
+          "units": " 4 units"
         },
         {
           "name": "ZiNK38",
           "country": "Germany",
-          "supply_centers": "4",
-          "units": "4"
+          "supply_centers": "3",
+          "units": " 2 units"
         },
         {
           "name": "jacobCritch",
           "country": "Russia",
-          "supply_centers": "3",
-          "units": "3"
-        },
-        {
-          "name": "nint8835",
-          "country": "Italy",
-          "supply_centers": "3",
-          "units": "3"
+          "supply_centers": "2",
+          "units": " 1 units"
         }
-      ]
+      ],
+      "Subscriptions": {}
     }
   ]
 }

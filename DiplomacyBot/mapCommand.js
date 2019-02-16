@@ -22,11 +22,11 @@ module.exports = {
 
 
 
-        embed.setImage(module.exports.getMapSrc(-2));
+        embed.setImage(this.getMapSrc(-2));
         embed.setTitle(`Map as of ${game.Date.replace('-', ' ')}`);
 
         //scrolling through map timeline
-        message.channel.send(embed).then(async embedMessage => {
+        message.reply(embed).then(async embedMessage => {
             await embedMessage.react('⏮');
             await embedMessage.react('◀');
             await embedMessage.react('▶');
@@ -47,14 +47,14 @@ module.exports = {
                         }
                         break;
                     case '▶':
-                        if (mapIndex < module.exports.getLatestMapIndex(-2)) {
+                        if (mapIndex < this.getLatestMapIndex(-2)) {
                             mapIndex++;
                         } else {
                             return;
                         }
                         break;
                     case '⏭':
-                        mapIndex = module.exports.getLatestMapIndex(-2);
+                        mapIndex = this.getLatestMapIndex(-2);
                         break;
                     case '⏮':
                         mapIndex = -1;
@@ -62,23 +62,22 @@ module.exports = {
                 }
 
                 //completing edit
-                editEmbed.setTitle(module.exports.indexToDate());
-                editEmbed.setImage(module.exports.getMapSrc(mapIndex));
+                editEmbed.setTitle(this.indexToDate());
+                editEmbed.setImage(this.getMapSrc(mapIndex));
                 embedMessage.edit(editEmbed);
             });
         });
     },
 
     getMapSrc: function (index) {
-        mapIndex = module.exports.getLatestMapIndex(index);
+        mapIndex = this.getLatestMapIndex(index);
         return `${ site }map.php?gameID=${game.GameID}&turn=${mapIndex}`;
     },
 
     indexToDate: function () {
-        let diff = Math.abs(mapIndex - module.exports.getLatestMapIndex(-2));
+        let diff = Math.abs(mapIndex - this.getLatestMapIndex(-2));
 
-        let season = game.Date.split("-")[0];
-        let year = game.Date.split("-")[1];
+        let { season, year } = game.Date.split("-");
 
         //switching the season correctly
         if (!(diff % 2 === 0)) {
@@ -97,8 +96,7 @@ module.exports = {
     getLatestMapIndex: function (index) {
         if (index !== -2) return index;
 
-        let season = game.Date.split("-")[0];
-        let year = game.Date.split("-")[1];
+        let { season, year } = game.Date.split("-")[0];
 
         return (year - game.startYear) * 2 + (season === game.startSeason ? 0 : 1);//returning the correct map index
     }

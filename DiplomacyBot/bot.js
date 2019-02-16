@@ -1,19 +1,15 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const auth = require('./auth.json');
-const request = require('request');
-const parser = require('cheerio-tableparser');
-const fs = require('fs');
-const cheerio = require('cheerio');
+
 
 
 let state = require('./state.json');
 let game = state.Games[0];
-const site = "https://webdiplomacy.net/";
+
 
 let channel = new Map();
-let siteContent;
 
-
+let scheduler;
 const mapHandler = require('./mapCommand').init(RichEmbed, game);
 const leadboardHandler = require('./leaderboardCommand').init(RichEmbed, game);
 
@@ -35,66 +31,8 @@ client.on('ready', function (evt) {
         let cTemp = client.channels.find(ch => ch.name === "diplomacy");
         channel.set(cTemp.guild.id, cTemp);
     }
-
-    httpGet(function (response) {
-        siteContent = response;
-
-        const $ = cheerio.load(siteContent);
-
-        //checking if the data is current
-        if (game.Date.replace("-", ", ") !== $('span.gameDate').text()) {
-            game.Date = $('span.gameDate').text().replace(", ", "-");
-            channel.send(`Date is now ${game.Date.replace('-', ', ')}`);
-
-            parser($);
-            let members = $('.membersFullTable').parsetable(false, false, true);
-
-            for (var i = 0; i < members[0].length; i++) {
-                //some weird data is undefined
-                if (members[1][i * 2] === undefined) {
-                    break;
-                }
-                //getting the player data
-                let country = members[0][i * 2];
-                let data = members[1][i * 2].split(",");
-                let name = data[0].split("(")[0].trim();
-                let supply_centers = data[1].split(" ")[3];
-                let units = data[2];
-
-                let found = false;
-
-                for (let p in state.Leaderboard) {
-                    //updating player data
-                    if (p.name === name) {
-                        found = true;
-                        if (p.supply_centers !== supply_centers) {
-                            p.supply_centers = supply_centers;
-                        }
-                        if (p.units !== units) {
-                            p.units = units;
-                        }
-                    }
-                }
-                if (!found) {
-                    //adding new player data
-                    let player = {
-                        "name": name,
-                        "country": country,
-                        "supply_centers": supply_centers,
-                        "units": units
-                    };
-                    game.Leaderboard.push(player);
-                }
-
-            }
-            //saving the new data
-            state.Games[0] = game;
-            fs.writeFile('state.json', JSON.stringify(state, null, 2), 'utf8', function (err) {
-                if (err) throw err;
-            });
-        }
-
-    });
+    scheduler = require('./scheduler').init(state, channel);
+    
     console.log("loading complete");
 });
 
@@ -106,7 +44,6 @@ client.on('message', message => {
 
             let args = message.content.split(" ");
             let cmd = args[1];
-            args = args.slice(2, args.length - 1).join(" ");
 
             switch (cmd) {
 
@@ -119,6 +56,15 @@ client.on('message', message => {
                     break;
                 case 'map':
                     mapHandler.CommandHandler(message);
+                    break;
+                case 'subscribe':
+                case 'unsubscribe':
+                    scheduler.subParser(message);
+                    break;
+                case 'saveState':
+                    if (message.channel.guild.id === state.DebugServer) {
+                        scheduler.saveState();
+                    }
                     break;
                 case 'help':
                 default:
@@ -137,17 +83,10 @@ function helpCommandHandler(message) {
     embed.addField("leaderboard/standing", "returns the current standing. Able to sort on different things.");
     embed.addField("map", "Shows you the current map. Able to scroll through the different turns.");
 
-    channel.send(embed);
+    message.reply(embed);
 }
 
-function httpGet(callback) {
-    request(`${site}board.php?gameID=${game.GameID}`, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            callback(body);
-        }
-    });
 
-}
 
 
 client.login(auth.token);
