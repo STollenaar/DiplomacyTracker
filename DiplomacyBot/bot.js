@@ -7,8 +7,6 @@ let state = require('./state.json');
 let game = state.Games[0];
 
 
-let channel = new Map();
-
 let scheduler;
 const mapHandler = require('./mapCommand').init(RichEmbed, game);
 const leadboardHandler = require('./leaderboardCommand').init(RichEmbed, game);
@@ -19,27 +17,15 @@ const client = new Client();
 client.on('ready', function (evt) {
     console.log("Connected");
 
-    if (state.Debug) {
-        for (let guild in client.guilds.array()) {
-            if (client.guilds.array()[guild].id === state.DebugServer) {
-                let cTemp = client.guilds.array()[guild].channels.find(ch => ch.name === "diplomacy");
-                channel.set(cTemp.guild.id, cTemp);
-                break;
-            }
-        }
-    } else {
-        let cTemp = client.channels.find(ch => ch.name === "diplomacy");
-        channel.set(cTemp.guild.id, cTemp);
-    }
-    scheduler = require('./scheduler').init(state, channel, mapHandler, leadboardHandler);
-    
+    scheduler = require('./scheduler').init(state, client, mapHandler, leadboardHandler);
+
     console.log("loading complete");
 });
 
 
 //reacting on certain commands
 client.on('message', message => {
-    if (channel.get(message.guild.id) !== undefined && message.channel.id === channel.get(message.guild.id).id) {
+    if (message.channel.name === "diplomacy") {
         if (message.isMentioned(client.user.id)) {
 
             let args = message.content.split(" ");
@@ -48,7 +34,7 @@ client.on('message', message => {
             switch (cmd) {
 
                 case 'ping':
-                    channel.get(message.guild.id).send('pong');
+                    message.reply('pong');
                     break;
                 case 'leaderboard':
                 case 'standing':

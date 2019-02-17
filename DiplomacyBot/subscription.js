@@ -51,7 +51,7 @@ module.exports = {
             if (this.subscribers.get(args[0].toLowerCase()) === undefined) {
                 this.subscribers.set(args[0].toLowerCase(), []);
             }
-            let person = { "id": message.author.id.toString(), "channel": message.channel.id.toString() };
+            let person = { "id": message.author.id.toString(), "guild": message.guild.id.toString() };
             //adding user to the list
             this.subscribers.get(args[0].toLowerCase()).push(person);
             message.reply(`You have now been subscribed to ${args[0]}`);
@@ -76,7 +76,8 @@ module.exports = {
 
     },
 
-    notReady: function (channel) {
+    notReady: function (client) {
+
         const $ = cheerio.load(sitecontent);
         parser($);
         let countries = $('.membersFullTable').parsetable(false, false, false)[0];
@@ -88,15 +89,22 @@ module.exports = {
                     player = game.Leaderboard[player];
                     //getting the country of the players who are not ready
                     if (player.country === country) {
+
                         //finding the list of subscribers
                         if (this.subscribers.get(player.name.toLowerCase()) !== undefined) {
                             //notifying subscribers
                             for (let sub in this.subscribers.get(player.name.toLowerCase())) {
                                 sub = this.subscribers.get(player.name.toLowerCase())[sub];
-                                channel.find(x => x.id === sub.channel).send(`<@${sub.id}> from your subscription of ${player.name} your move have not been set to ready yet.`);
-                            }
-                        }
 
+                                client.channels.forEach(c => {
+                                    if (c.name === "diplomacy" && c.guild.id === sub.guild) {
+                                        c.send(`<@${sub.id}> from your subscription of ${player.name} your move have not been set to ready yet.`)
+                                            .then(message => mapHandler.mapUpdate(message));
+                                    }
+                                });
+                            }
+
+                        }
                         break;
                     }
                 }

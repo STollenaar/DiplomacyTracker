@@ -8,19 +8,19 @@ let subscriptionHandler;
 const site = "https://webdiplomacy.net/";
 let siteContent;
 
-let channel;
 let state;
 let game;
+let client;
 
 let mapHandler;
 let leaderboardHanlder;
 
 module.exports = {
-    init(s, c, m, l) {
+    init(s,c, m, l) {
         state = s;
         game = s.Games[0];
-        channel = c;
         mapHandler = m;
+        client = c;
         leaderboardHanlder = l;
 
         subscriptionHandler = require('./subscription').init(null, game);
@@ -37,7 +37,7 @@ module.exports = {
 
             subscriptionHandler.setSiteContent(siteContent);
 
-            subscriptionHandler.notReady(channel);
+            subscriptionHandler.notReady(client);
             const $ = cheerio.load(siteContent);
             parser($);
 
@@ -50,10 +50,13 @@ module.exports = {
                 leaderboardHanlder.setGame(game);
 
                 //announcing the new date and sending a new map to the channel
-                channel.forEach(function (e) {
-                    e.send(`Date is now ${game.Date.replace('-', ', ')}`)
-                        .then(message => mapHandler.mapUpdate(message));
+                client.channels.forEach(c => {
+                    if (c.name === "diplomacy") {
+                        c.send(`Date is now ${game.Date.replace('-', ', ')}`)
+                            .then(message => mapHandler.mapUpdate(message));
+                    }
                 });
+                    
 
                 let members = $('.membersFullTable').parsetable(false, false, true);
 

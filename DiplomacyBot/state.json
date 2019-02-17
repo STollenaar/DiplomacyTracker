@@ -1,31 +1,31 @@
 {
-  "Debug": false,
+  "Debug": true,
   "DebugServer": "544911814886948865",
-  "IntervalTimeInSeconds": 360,
+  "IntervalTimeInSeconds": 30,
   "Games": [
     {
       "GameID": 236023,
       "startSeason": "Spring",
       "startYear": "1901",
-      "Date": "Autumn-1906",
+      "Date": "Spring-1907",
       "Leaderboard": [
         {
           "name": "Taylorx20",
           "country": "- England",
           "supply_centers": "10",
-          "units": " 9 units"
+          "units": " 10 units"
         },
         {
           "name": "JanitorDan",
           "country": "- Austria",
           "supply_centers": "8",
-          "units": " 7 units"
+          "units": " 8 units"
         },
         {
           "name": "Guitargun",
           "country": "- France",
           "supply_centers": "6",
-          "units": " 5 units"
+          "units": " 6 units"
         },
         {
           "name": "Nothing2",
@@ -37,7 +37,7 @@
           "name": "nint8835",
           "country": "Italy",
           "supply_centers": "3",
-          "units": " 4 units"
+          "units": " 3 units"
         },
         {
           "name": "ZiNK38",
@@ -59,7 +59,8 @@
         ],
         [
           "jacobcritch",
-          []
+          [
+          ]
         ]
       ]
     }
