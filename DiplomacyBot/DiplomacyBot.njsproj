@@ -33,6 +33,9 @@
     <Content Include="auth.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="config.json">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="requirements.txt">
@@ -49,6 +52,7 @@
     <Compile Include="bot.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="database.js" />
     <Compile Include="leaderboardCommand.js">
       <SubType>Code</SubType>
     </Compile>

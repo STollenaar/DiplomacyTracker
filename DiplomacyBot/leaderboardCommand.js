@@ -1,4 +1,4 @@
-﻿let game;
+﻿let database;
 let RichEmbed;
 
 
@@ -25,14 +25,13 @@ const sortingFunctions = {
 
 module.exports = {
 
-    init(rich, g) {
+    init(rich, d) {
         RichEmbed = rich;
-        game = g;
+        database = d;
         return this;
     },
-    setGame: function (g) {
-        game = g;
-    },
+
+
     //handles stuff for the leaderboard
     CommandHandler: function (message) {
         let embed = new RichEmbed();

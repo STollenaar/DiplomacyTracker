@@ -1,23 +1,23 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
 const auth = require('./auth.json');
 
-
-
-let state = require('./state.json');
-let game = state.Games[0];
-
-
 let scheduler;
-const mapHandler = require('./mapCommand').init(RichEmbed, game);
-const leadboardHandler = require('./leaderboardCommand').init(RichEmbed, game);
+const database = require('./database');
+
+const mapHandler = require('./mapCommand').init(RichEmbed, database);
+const leadboardHandler = require('./leaderboardCommand').init(RichEmbed, database);
+
+const config = require('./config.json');
 
 // Initialize Discord Bot
 const client = new Client();
 
+
+
 client.on('ready', function (evt) {
     console.log("Connected");
 
-    scheduler = require('./scheduler').init(state, client, mapHandler, leadboardHandler);
+    scheduler = require('./scheduler').init(database,client,config, mapHandler, leadboardHandler);
 
     console.log("loading complete");
 });
@@ -30,6 +30,7 @@ client.on('message', message => {
 
             let args = message.content.split(" ");
             let cmd = args[1];
+            args = args.slice(2, args.length);
 
             switch (cmd) {
 
@@ -47,9 +48,16 @@ client.on('message', message => {
                 case 'unsubscribe':
                     scheduler.subParser(message);
                     break;
-                case 'saveState':
-                    if (message.channel.guild.id === state.DebugServer) {
-                        scheduler.saveState();
+                case 'playerDump':
+                    if (message.channel.guild.id === config.DebugServer) {
+                        scheduler.playerDump();
+                    }
+                    break;
+                case 'addGame':
+                    if (message.channel.guild.id === config.DebugServer) {
+                        if (args.length === 3 && !isNaN(args[0]) && !isNaN(args[1]) && isNaN(args[3])) {
+                            scheduler.addGame(args[0], args[1], args[2]);
+                        }
                     }
                     break;
                 case 'help':
