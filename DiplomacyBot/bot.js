@@ -17,7 +17,7 @@ const client = new Client();
 client.on('ready', function (evt) {
     console.log("Connected");
 
-    scheduler = require('./scheduler').init(database,client,config, mapHandler, leadboardHandler);
+    scheduler = require('./scheduler').init(database, client, config, mapHandler, leadboardHandler, RichEmbed);
 
     console.log("loading complete");
 });
@@ -47,11 +47,6 @@ client.on('message', message => {
                 case 'subscribe':
                 case 'unsubscribe':
                     scheduler.subParser(message);
-                    break;
-                case 'playerDump':
-                    if (message.channel.guild.id === config.DebugServer) {
-                        scheduler.playerDump();
-                    }
                     break;
                 case 'addGame':
                     if (message.channel.guild.id === config.DebugServer) {

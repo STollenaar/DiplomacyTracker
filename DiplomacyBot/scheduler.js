@@ -17,14 +17,14 @@ let mapHandler;
 let leaderboardHanlder;
 
 module.exports = {
-    init(d, c, co, m, l) {
+    init(d, c, co, m, l, rich) {
         database = d;
         mapHandler = m;
         client = c;
         config = co;
         leaderboardHanlder = l;
 
-        // subscriptionHandler = require('./subscription').init(null, game);
+         subscriptionHandler = require('./subscription').init(null, database, rich);
 
         //interval timer
         this.stateCheck();
@@ -38,9 +38,9 @@ module.exports = {
                 module.exports.httpGet(g.GameID, function (response) {
                     siteContent = response;
 
-                    //  subscriptionHandler.setSiteContent(siteContent);
+                    subscriptionHandler.setSiteContent(siteContent);
 
-                    // subscriptionHandler.notReady(client);
+                    subscriptionHandler.notReady(client, g.GameID);
                     const $ = cheerio.load(siteContent);
                     parser($);
 
@@ -99,14 +99,10 @@ module.exports = {
 
 
     subParser: function (message) {
-        // subscriptionHandler.CommandHandler(message);
-    },
-
-    playerDump: function () {
-        database.playerNameDump();
+        subscriptionHandler.CommandHandler(message);
     },
 
     addGame: function (id, startYear, startSeason) {
         database.addGame(id, startYear, startSeason, startSeason + ", " + startYear);
-    },
+    }
 };
