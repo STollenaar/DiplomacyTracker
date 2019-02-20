@@ -48,11 +48,13 @@ module.exports = {
 
     //get a specific game
     getGame(id, callback) {
-        db.get(`SELECT * FROM game WHERE GameID=${id};`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.get(`SELECT * FROM game WHERE GameID=${id};`, (err, row) => callback(row));
+        });
     },
 
     //updating the game date
-    updateGame(id, date) {
+    updateGame(id, date, callback) {
         db.serialize(function () {
             db.run(`UPDATE game SET 'date'='${date}' WHERE GameID = ${id}`);
         });

@@ -24,7 +24,7 @@ module.exports = {
         config = co;
         leaderboardHanlder = l;
 
-         subscriptionHandler = require('./subscription').init(null, database, rich);
+        subscriptionHandler = require('./subscription').init(null, database, rich);
 
         //interval timer
         this.stateCheck();
@@ -53,8 +53,10 @@ module.exports = {
                         if (!config.Debug) {
                             client.channels.forEach(c => {
                                 if (c.name === "diplomacy") {
-                                    c.send(`Date is now ${date} for game ${g.GameID}`)
-                                        .then(message => mapHandler.mapUpdate(message, g));
+                                    database.getGame(g.GameID, function (game) {
+                                        c.send(`Date is now ${date} for game ${game.GameID}`)
+                                            .then(message => mapHandler.mapUpdate(message, game));
+                                    });
                                 }
                             });
                         }

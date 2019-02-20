@@ -49,11 +49,11 @@ client.on('message', message => {
                     scheduler.subParser(message);
                     break;
                 case 'addGame':
-                    if (message.channel.guild.id === config.DebugServer) {
+                    //if (message.channel.guild.id === config.DebugServer) {
                         if (args.length === 3 && !isNaN(args[0]) && !isNaN(args[1]) && isNaN(args[3])) {
                             scheduler.addGame(args[0], args[1], args[2]);
                         }
-                    }
+                   // }
                     break;
                 case 'help':
                 default:

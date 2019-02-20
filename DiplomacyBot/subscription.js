@@ -83,18 +83,20 @@ module.exports = {
                 let country = line.split(">")[5].split("<")[0];
                 //getting the player from country and gameID
                 database.getPlayerNameFromData(gameID, country, function (player) {
-                    //getting the subs for that player
-                    database.getSubscriptions(gameID, player.Player_PlayerName, function (subs) {
-                        if (subs !== []) {
-                            subs.forEach(sub => {
-                                client.channels.forEach(c => {
-                                    if (c.name === "diplomacy" && c.guild.id === sub.guildId.toString()) {
-                                        c.send(`<@${sub.userId}> from your subscription of ${player.Player_PlayerName} in game ${gameID} your move have not been set to ready yet.`);
-                                    }
+                    if (player != undefined) {
+                        //getting the subs for that player
+                        database.getSubscriptions(gameID, player.Player_PlayerName, function (subs) {
+                            if (subs !== []) {
+                                subs.forEach(sub => {
+                                    client.channels.forEach(c => {
+                                        if (c.name === "diplomacy" && c.guild.id === sub.guildId.toString()) {
+                                            c.send(`<@${sub.userId}> from your subscription of ${player.Player_PlayerName} in game ${gameID} your move have not been set to ready yet.`);
+                                        }
+                                    });
                                 });
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
                 });
             }
         }
