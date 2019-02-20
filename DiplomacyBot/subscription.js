@@ -83,7 +83,7 @@ module.exports = {
                 let country = line.split(">")[5].split("<")[0];
                 //getting the player from country and gameID
                 database.getPlayerNameFromData(gameID, country, function (player) {
-                    if (player != undefined) {
+                    if (player !== undefined) {
                         //getting the subs for that player
                         database.getSubscriptions(gameID, player.Player_PlayerName, function (subs) {
                             if (subs !== []) {

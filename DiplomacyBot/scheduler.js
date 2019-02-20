@@ -28,7 +28,22 @@ module.exports = {
 
         //interval timer
         this.stateCheck();
-        setInterval(function () { module.exports.stateCheck(); }, config.IntervalTimeInSeconds * 1000);
+        setInterval(function () { module.exports.stateCheck(); }, 600 * 1000);
+        setInterval(function () {
+            database.getGames(function (games) {
+                games.forEach(g => {
+                    module.exports.httpGet(g.GameID, function (response) {
+                        siteContent = response;
+
+                        subscriptionHandler.setSiteContent(siteContent);
+
+                        subscriptionHandler.notReady(client, g.GameID);
+                    });
+                });
+            });
+
+
+        }, config.IntervalTimeInSeconds * 1000);
         return this;
     },
 
