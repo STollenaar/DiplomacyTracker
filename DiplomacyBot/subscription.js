@@ -78,7 +78,7 @@ module.exports = {
         //looping through countries
         for (let line in countries) {
             line = countries[line];
-            if (line.includes('alert.png') || line.includes('tick.png')) {
+            if (line.includes('alert.png') || line.includes('tick_faded.png')) {
 
                 let country = line.split(">")[5].split("<")[0];
                 //getting the player from country and gameID
