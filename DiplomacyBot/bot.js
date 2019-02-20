@@ -1,5 +1,5 @@
 ﻿const { Client, RichEmbed } = require('discord.js');
-const auth = require('./auth.json');
+const config = require('./config.json');
 
 let scheduler;
 const database = require('./database');
@@ -7,7 +7,7 @@ const database = require('./database');
 const mapHandler = require('./mapCommand').init(RichEmbed, database);
 const leadboardHandler = require('./leaderboardCommand').init(RichEmbed, database);
 
-const config = require('./config.json');
+
 
 // Initialize Discord Bot
 const client = new Client();
@@ -80,5 +80,5 @@ function helpCommandHandler(message) {
 
 
 
-client.login(auth.token);
+client.login(config.AuthTkn);
 

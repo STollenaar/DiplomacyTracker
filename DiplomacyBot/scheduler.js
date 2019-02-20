@@ -53,19 +53,22 @@ module.exports = {
                         if (!config.Debug) {
                             client.channels.forEach(c => {
                                 if (c.name === "diplomacy") {
-                                    c.send(`Date is now ${date}`)
-                                        .then(message => mapHandler.mapUpdate(message, game));
+                                    c.send(`Date is now ${date} for game ${g.GameID}`)
+                                        .then(message => mapHandler.mapUpdate(message, g));
                                 }
                             });
                         }
 
                         let members = $('.membersFullTable').parsetable(false, false, true);
-
                         for (var i = 0; i < members[0].length; i++) {
                             //some weird data is undefined
                             if (members[1][i * 2] === undefined) {
                                 break;
                             }
+                            if (members[1][i * 2].includes("Defeated")) {
+                                continue;
+                            }
+
                             //getting the player data
                             let country = members[0][i * 2];
                             let data = members[1][i * 2].split(",");
