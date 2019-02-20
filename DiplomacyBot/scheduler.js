@@ -55,7 +55,6 @@ module.exports = {
 
                     subscriptionHandler.setSiteContent(siteContent);
 
-                    subscriptionHandler.notReady(client, g.GameID);
                     const $ = cheerio.load(siteContent);
                     parser($);
 
