@@ -14,22 +14,28 @@ module.exports = {
 
     //checking if player exists if not adding to db
     playerExists(player) {
-        db.get(`SELECT PlayerName FROM player WHERE PlayerName = '${player}';`, (err, row) => {
-            if (row === undefined) {
-                this.addPlayer(player);
-            }
+        db.serialize(function () {
+            db.get(`SELECT PlayerName FROM player WHERE PlayerName = '${player}';`, (err, row) => {
+                if (row === undefined) {
+                    this.addPlayer(player);
+                }
+            });
         });
     },
 
     //debug purpose
     playerNameDump() {
-        db.all('SELECT * FROM player;', (err, row) => {
-            row.forEach(r => console.log(r.PlayerName));
+        db.serialize(function () {
+            db.all('SELECT * FROM player;', (err, row) => {
+                row.forEach(r => console.log(r.PlayerName));
+            });
         });
     },
 
     getPlayerNameFromData(gameID, country, callback) {
-        db.get(`SELECT Player_PlayerName FROM gamedata WHERE Game_GameID=${gameID} AND country='${country}';`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.get(`SELECT Player_PlayerName FROM gamedata WHERE Game_GameID=${gameID} AND country='${country}';`, (err, row) => callback(row));
+        });
     },
 
     //adds a new game to the db
@@ -39,10 +45,19 @@ module.exports = {
         });
     },
 
+
+    updateGame(id, phase) {
+        db.serialize(function () {
+            db.run(`UPDATE game SET 'phase'=${phase};`);
+        });
+    },
+
     //getting all the games currently in the db
     getGames(callback) {
-        db.all('SELECT * FROM game;', (err, rows) => {
-            callback(rows);
+        db.serialize(function () {
+            db.all('SELECT * FROM game;', (err, rows) => {
+                callback(rows);
+            });
         });
     },
 
@@ -69,12 +84,16 @@ module.exports = {
 
     //getting specific gamedata
     getGameData(gameID, player, callback) {
-        db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+        });
     },
 
     //getting all the gamedata
     getAllGameData(gameID, callback) {
-        db.all(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID};`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.all(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID};`, (err, row) => callback(row));
+        });
     },
 
     //updating gamedata
@@ -100,11 +119,15 @@ module.exports = {
 
     //getting a specific subscription
     getSubscriptionUser(gameID, player, userID, callback) {
-        db.get(`SELECT * FROM subscription WHERE Game_GameID =${gameID} AND Player_PlayerName='${player}' AND userId='${userID}';`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.get(`SELECT * FROM subscription WHERE Game_GameID =${gameID} AND Player_PlayerName='${player}' AND userId='${userID}';`, (err, row) => callback(row));
+        });
     },
 
     //gets all the subscriptions of that game
     getSubscriptions(gameID, player, callback) {
-        db.all(`SELECT * FROM subscription WHERE Game_GameID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+        db.serialize(function () {
+            db.all(`SELECT * FROM subscription WHERE Game_GameID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+        });
     }
 };

@@ -32,13 +32,15 @@ module.exports = {
         setInterval(function () {
             database.getGames(function (games) {
                 games.forEach(g => {
-                    module.exports.httpGet(g.GameID, function (response) {
-                        siteContent = response;
+                    if (g.phase !== "Finished") {
+                        module.exports.httpGet(g.GameID, function (response) {
+                            siteContent = response;
 
-                        subscriptionHandler.setSiteContent(siteContent);
+                            subscriptionHandler.setSiteContent(siteContent);
 
-                        subscriptionHandler.notReady(client, g.GameID);
-                    });
+                            subscriptionHandler.notReady(client, g.GameID);
+                        });
+                    }
                 });
             });
 
@@ -50,59 +52,67 @@ module.exports = {
     stateCheck: function () {
         database.getGames(function (games) {
             games.forEach(g => {
-                module.exports.httpGet(g.GameID, function (response) {
-                    siteContent = response;
+                if (g.phase !== "Finished") {
+                    module.exports.httpGet(g.GameID, function (response) {
+                        siteContent = response;
 
-                    subscriptionHandler.setSiteContent(siteContent);
+                        subscriptionHandler.setSiteContent(siteContent);
 
-                    const $ = cheerio.load(siteContent);
-                    parser($);
+                        const $ = cheerio.load(siteContent);
+                        parser($);
 
-                    const date = $('span.gameDate').text();
-                    //checking if the data is current
-                    if (g.date !== date) {
-                        database.updateGame(g.GameID, date);
+                        const date = $('span.gameDate').text();
+                        const phase = $('span.gamePhase').text();
 
-                        //announcing the new date and sending a new map to the channel
-                        if (!config.Debug) {
-                            client.channels.forEach(c => {
-                                if (c.name === "diplomacy") {
-                                    database.getGame(g.GameID, function (game) {
-                                        c.send(`Date is now ${date} for game ${game.GameID}`)
-                                            .then(message => mapHandler.mapUpdate(message, game));
-                                    });
-                                }
-                            });
+                        if (phase === "Finished") {
+                            database.updateGame(g.GameID, phase);
                         }
 
-                        let members = $('.membersFullTable').parsetable(false, false, true);
-                        for (var i = 0; i < members[0].length; i++) {
-                            //some weird data is undefined
-                            if (members[1][i * 2] === undefined) {
-                                break;
-                            }
-                            if (members[1][i * 2].includes("Defeated")) {
-                                continue;
+                        //checking if the data is current
+                        if (g.date !== date) {
+                            database.updateGame(g.GameID, date);
+
+                            //announcing the new date and sending a new map to the channel
+                            if (!config.Debug) {
+                                client.channels.forEach(c => {
+                                    if (c.name === "diplomacy") {
+                                        database.getGame(g.GameID, function (game) {
+                                            c.send(`Date is now ${date} for game ${game.GameID}`)
+                                                .then(message => mapHandler.mapUpdate(message, game));
+                                        });
+                                    }
+                                });
                             }
 
-                            //getting the player data
-                            let country = members[0][i * 2];
-                            let data = members[1][i * 2].split(",");
-                            let name = data[0].split("(")[0].trim();
-                            let supply_centers = data[1].split(" ")[3];
-                            let units = data[2].split(" ")[1];
-
-                            database.playerExists(name);
-                            database.getGameData(g.GameID, name, function (Gdata) {
-                                if (Gdata === undefined) {
-                                    database.addGameData(g.GameID, name, supply_centers, units, country);
-                                } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
-                                    database.updateGameData(g.GameID, name, supply_centers, units);
+                            let members = $('.membersFullTable').parsetable(false, false, true);
+                            for (var i = 0; i < members[0].length; i++) {
+                                //some weird data is undefined
+                                if (members[1][i * 2] === undefined) {
+                                    break;
                                 }
-                            });
+                                if (members[1][i * 2].includes("Defeated")) {
+                                    continue;
+                                }
+
+                                //getting the player data
+                                let country = members[0][i * 2];
+                                let data = members[1][i * 2].split(",");
+                                let name = data[0].split("(")[0].trim();
+                                let supply_centers = data[1].split(" ")[3];
+                                let units = data[2].split(" ")[1];
+
+                                database.playerExists(name);
+                                database.getGameData(g.GameID, name, function (Gdata) {
+                                    if (Gdata === undefined) {
+                                        database.addGameData(g.GameID, name, supply_centers, units, country);
+                                    } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
+                                        database.updateGameData(g.GameID, name, supply_centers, units);
+                                    }
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                }
             });
         });
     },
