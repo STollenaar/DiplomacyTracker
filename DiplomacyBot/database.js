@@ -17,7 +17,7 @@ module.exports = {
         db.serialize(function () {
             db.get(`SELECT PlayerName FROM player WHERE PlayerName = '${player}';`, (err, row) => {
                 if (row === undefined) {
-                    this.addPlayer(player);
+                    module.exports.addPlayer(player);
                 }
             });
         });
@@ -39,16 +39,16 @@ module.exports = {
     },
 
     //adds a new game to the db
-    addGame(id, startYear, startSeason, date) {
+    addGame(id, startYear, startSeason, date, phase) {
         db.serialize(function () {
-            db.run(`INSERT INTO game ('GameID', 'startYear', 'startSeason', 'date') VALUES (${id}, ${startYear}, '${startSeason}', '${date}');`);
+            db.run(`INSERT INTO game ('GameID', 'startYear', 'startSeason', 'date', 'phase') VALUES (${id}, ${startYear}, '${startSeason}', '${date}', '${phase}');`);
         });
     },
 
 
-    updateGame(id, phase) {
+    updateGamePhase(id, phase) {
         db.serialize(function () {
-            db.run(`UPDATE game SET 'phase'=${phase};`);
+            db.run(`UPDATE game SET 'phase'='${phase}';`);
         });
     },
 
@@ -69,7 +69,7 @@ module.exports = {
     },
 
     //updating the game date
-    updateGame(id, date, callback) {
+    updateGameDate(id, date, callback) {
         db.serialize(function () {
             db.run(`UPDATE game SET 'date'='${date}' WHERE GameID = ${id}`);
         });

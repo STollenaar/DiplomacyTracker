@@ -65,12 +65,12 @@ module.exports = {
                         const phase = $('span.gamePhase').text();
 
                         if (phase === "Finished") {
-                            database.updateGame(g.GameID, phase);
+                            database.updateGamePhase(g.GameID, phase);
                         }
 
                         //checking if the data is current
                         if (g.date !== date) {
-                            database.updateGame(g.GameID, date);
+                            database.updateGameDate(g.GameID, date);
 
                             //announcing the new date and sending a new map to the channel
                             if (!config.Debug) {
@@ -132,6 +132,7 @@ module.exports = {
     },
 
     addGame: function (id, startYear, startSeason) {
-        database.addGame(id, startYear, startSeason, startSeason + ", " + startYear);
+        database.addGame(id, startYear, startSeason, startSeason + ", " + startYear, "starting");
+        this.stateCheck();
     }
 };
