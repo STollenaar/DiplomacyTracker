@@ -30,9 +30,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="auth.json">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="config.json">
       <SubType>Code</SubType>
     </Content>

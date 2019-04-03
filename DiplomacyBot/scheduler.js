@@ -99,7 +99,7 @@ module.exports = {
                                 let data = members[1][i * 2].split(",");
                                 let name = data[0].split("(")[0].trim();
                                 if (name === "") {
-                                    name = data[0].split("(")[1].split(")")[0].trim();
+                                    name = data[0].split("(")[1].split(")")[0].trim();//filtering out anonymous names
                                 }
 
                                 let supply_centers = data[1].split(" ")[3];
