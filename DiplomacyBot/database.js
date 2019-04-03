@@ -39,9 +39,9 @@ module.exports = {
     },
 
     //adds a new game to the db
-    addGame(id, startYear, startSeason, date, phase) {
+    addGame(id, startYear, startSeason, date, phase, type) {
         db.serialize(function () {
-            db.run(`INSERT INTO game ('GameID', 'startYear', 'startSeason', 'date', 'phase') VALUES (${id}, ${startYear}, '${startSeason}', '${date}', '${phase}');`);
+            db.run(`INSERT INTO game ('GameID', 'startYear', 'startSeason', 'date', 'phase', 'type') VALUES (${id}, ${startYear}, '${startSeason}', '${date}', '${phase}', '${type}');`);
         });
     },
 

@@ -132,7 +132,16 @@ module.exports = {
     },
 
     addGame: function (id, startYear, startSeason) {
-        database.addGame(id, startYear, startSeason, startSeason + ", " + startYear, "starting");
-        this.stateCheck();
+
+        this.httpGet(id, function (body) {
+            const $ = cheerio.load(body);
+            if ($('span.gamePotType').text().includes("Anonymous")) {
+                database.addGame(id, startYear, startSeason, startSeason + ", " + startYear, "starting", "Anonymous");
+            } else {
+                database.addGame(id, startYear, startSeason, startSeason + ", " + startYear, "starting", "Open");
+            }
+            module.exports.stateCheck();
+        });
+
     }
 };
