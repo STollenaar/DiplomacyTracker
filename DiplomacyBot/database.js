@@ -83,9 +83,15 @@ module.exports = {
     },
 
     //getting specific gamedata
-    getGameData(gameID, player,country, callback) {
+    getGameDataPlayer(gameID, player, callback) {
         db.serialize(function () {
-            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}' AND 'country'='${country}';`, (err, row) => callback(row));
+            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+        });
+    },
+
+    getGameDataCountry(gameID, country, callback) {
+        db.serialize(function () {
+            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND country='${country}';`, (err, row) => callback(row));
         });
     },
 
@@ -97,9 +103,9 @@ module.exports = {
     },
 
     //updating gamedata
-    updateGameData(gameID, player, supply, unit) {
+    updateGameData(gameID, player,country, supply, unit) {
         db.serialize(function () {
-            db.run(`UPDATE gamedata SET 'supply_centers'=${supply}, 'units'=${unit} WHERE Game_GameID = ${gameID} AND Player_PlayerName='${player}';`);
+            db.run(`UPDATE gamedata SET 'supply_centers'=${supply}, 'units'=${unit} WHERE Game_GameID = ${gameID} AND Player_PlayerName='${player}' AND 'country'='${country}';`);
         });
     },
 

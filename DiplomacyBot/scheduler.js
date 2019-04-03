@@ -106,13 +106,25 @@ module.exports = {
                                 let units = data[2].split(" ")[1];
 
                                 database.playerExists(name);
-                                database.getGameData(g.GameID, name,country, function (Gdata) {
-                                    if (Gdata === undefined) {
-                                        database.addGameData(g.GameID, name, supply_centers, units, country);
-                                    } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
-                                        database.updateGameData(g.GameID, name, supply_centers, units);
-                                    }
-                                });
+
+                                //checking if the data needs to be updated
+                                if (name === "Anonymous") {
+                                    database.getGameDataCountry(g.GameID, country, function (Gdata) {
+                                        if (Gdata === undefined) {
+                                            database.addGameData(g.GameID, name, supply_centers, units, country);
+                                        } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
+                                            database.updateGameData(g.GameID, name,country, supply_centers, units);
+                                        }
+                                    });
+                                } else {
+                                    database.getGameDataPlayer(g.GameID, name, function (Gdata) {
+                                        if (Gdata === undefined) {
+                                            database.addGameData(g.GameID, name, supply_centers, units, country);
+                                        } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
+                                            database.updateGameData(g.GameID, name,country, supply_centers, units);
+                                        }
+                                    });
+                                }
                             }
                         }
                     });

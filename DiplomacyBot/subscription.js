@@ -37,34 +37,39 @@ module.exports = {
                 message.reply(embed);
             });
         } else {
-            database.getGameData(args[0], args[1], function (game) {
-                if (game === undefined) {
-                    message.reply("Invalid GameID or playername");
-                } else {
 
-                    if (cmd === 'subscribe') {
-                        //subbing
-                        database.getSubscriptionUser(args[0], args[1], message.author.id, function (sub) {
-                            //checking if the entry is valid
-                            if (sub === undefined) {
-                                database.addSubscription(args[0], args[1], message.guild.id, message.author.id);
-                                message.reply(`You have now been subscribed to ${args[1]} for game ${args[0]}`);
-                            } else {
-                                message.reply(`You are already subscribed to ${args[1]} for game ${args[0]}`);
-                            }
-                        });
-                    } else {
-                        database.getSubscriptionUser(args[0], args[1], message.author.id, function (sub) {
-                            //checking if the entry is valid
-                            if (sub === undefined) {
-                                message.reply("You have not been subscribed to this person");
-                            } else {
-                                //unsubbing
-                                database.removeSubscription(args[0], args[1], message.author.id);
-                                message.reply(`You have been unsubscribed from game ${args[0]} and player ${args[1]}`);
-                            }
-                        });
-                    }
+            database.getGame(args[0], function (game) {
+                //preventing anonymous game subscriptions
+                if (game.type === "Anonymous") {
+                    message.reply("Subscriptions aren't possible in Anonymous games.");
+                } else {
+                    database.getGameData(args[0], args[1], function (game) {
+                        if (game === undefined) {
+                            message.reply("Invalid GameID or playername");
+                        } else if (cmd === 'subscribe') {
+                            //subbing
+                            database.getSubscriptionUser(args[0], args[1], message.author.id, function (sub) {
+                                //checking if the entry is valid
+                                if (sub === undefined) {
+                                    database.addSubscription(args[0], args[1], message.guild.id, message.author.id);
+                                    message.reply(`You have now been subscribed to ${args[1]} for game ${args[0]}`);
+                                } else {
+                                    message.reply(`You are already subscribed to ${args[1]} for game ${args[0]}`);
+                                }
+                            });
+                        } else {
+                            database.getSubscriptionUser(args[0], args[1], message.author.id, function (sub) {
+                                //checking if the entry is valid
+                                if (sub === undefined) {
+                                    message.reply("You have not been subscribed to this person");
+                                } else {
+                                    //unsubbing
+                                    database.removeSubscription(args[0], args[1], message.author.id);
+                                    message.reply(`You have been unsubscribed from game ${args[0]} and player ${args[1]}`);
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }
