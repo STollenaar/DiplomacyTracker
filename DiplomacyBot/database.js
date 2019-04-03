@@ -83,9 +83,9 @@ module.exports = {
     },
 
     //getting specific gamedata
-    getGameData(gameID, player, callback) {
+    getGameData(gameID, player,country, callback) {
         db.serialize(function () {
-            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}';`, (err, row) => callback(row));
+            db.get(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID} AND Player_PlayerName='${player}' AND 'country'='${country}';`, (err, row) => callback(row));
         });
     },
 

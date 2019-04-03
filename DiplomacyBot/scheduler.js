@@ -58,11 +58,11 @@ module.exports = {
 
                         subscriptionHandler.setSiteContent(siteContent);
 
-                        const $ = cheerio.load(siteContent);
+                        let $ = cheerio.load(siteContent);
                         parser($);
 
-                        const date = $('span.gameDate').text();
-                        const phase = $('span.gamePhase').text();
+                        let date = $('span.gameDate').text();
+                        let phase = $('span.gamePhase').text();
 
                         if (phase === "Finished") {
                             database.updateGamePhase(g.GameID, phase);
@@ -98,11 +98,15 @@ module.exports = {
                                 let country = members[0][i * 2];
                                 let data = members[1][i * 2].split(",");
                                 let name = data[0].split("(")[0].trim();
+                                if (name === "") {
+                                    name = data[0].split("(")[1].split(")")[0].trim();
+                                }
+
                                 let supply_centers = data[1].split(" ")[3];
                                 let units = data[2].split(" ")[1];
 
                                 database.playerExists(name);
-                                database.getGameData(g.GameID, name, function (Gdata) {
+                                database.getGameData(g.GameID, name,country, function (Gdata) {
                                     if (Gdata === undefined) {
                                         database.addGameData(g.GameID, name, supply_centers, units, country);
                                     } else if (Gdata.supply_centers !== supply_centers || Gdata.units !== units) {
