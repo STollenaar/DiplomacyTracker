@@ -25,6 +25,7 @@ module.exports = {
 			const games = await database.getGames();
 			const embed = new RichEmbed();
 			embed.setDescription('Need to specify gameID.');
+			console.log(games);
 			games.forEach((g) => {
 				embed.addField(`ID: ${g.GameID}`, `Current Date of this game: ${g.date}`);
 			});

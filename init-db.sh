@@ -9,5 +9,5 @@ mysql -u root --password="$USER_PASS" -h localhost <<-EOSQL
 EOSQL
 
 
-#cat ./DIPLOMACY_DB.sql | mysql -u "$USER" --password="$USER_PASS" COPY_DB
+cat ./DIPLOMACY_DB.sql | mysql -u "$USER" --password="$USER_PASS" DIPLOMACY_DB
 

@@ -21,6 +21,6 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# RUN ./init-db.sh
+RUN ./init-db.sh
 
 CMD ./docker-entry.sh
