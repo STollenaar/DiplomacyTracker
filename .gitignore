@@ -8,6 +8,8 @@
 *.sln.docstates
 auth.json
 config.json
+node_modules/
+DiplomacyBot/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
