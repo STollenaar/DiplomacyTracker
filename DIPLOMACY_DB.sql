@@ -8,58 +8,58 @@ SET time_zone = "+00:00";
 
 
 CREATE TABLE `game` (
-  `gameid` int(11) NOT NULL,
-  `startyear` int(11) NOT NULL,
-  `startseason` varchar(45) NOT NULL,
+  `GameID` int(11) NOT NULL,
+  `startYear` int(11) NOT NULL,
+  `startSeason` varchar(45) NOT NULL,
   `date` varchar(45) NOT NULL,
   `phase` longtext NOT NULL,
   `type` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `gamedata` (
-  `game_gameid` int(11) NOT NULL ,
-  `player_playername` varchar(45) NOT NULL ,
+  `Game_GameID` int(11) NOT NULL ,
+  `Player_PlayerName` varchar(45) NOT NULL ,
   `supply_centers` int(11) NOT NULL ,
   `units` int(11) NOT NULL ,
   `country` varchar(45) NOT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 CREATE TABLE `player` (
-  `playername` varchar(45) NOT NULL 
+  `PlayerName` varchar(45) NOT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 CREATE TABLE `subscription` (
-  `game_gameid` int(11) NOT NULL ,
-  `player_playername` varchar(45) NOT NULL ,
-  `userid` longtext NOT NULL ,
-  `guildid` longtext NOT NULL 
+  `Game_GameID` int(11) NOT NULL ,
+  `Player_PlayerName` varchar(45) NOT NULL ,
+  `userId` longtext NOT NULL ,
+  `guildId` longtext NOT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
 
 
 ALTER TABLE `game`
-  ADD PRIMARY KEY (`gameid`);
+  ADD PRIMARY KEY (`GameID`);
 
 ALTER TABLE `gamedata`
-  ADD KEY `fk_gamedata_player1_idx` (`player_playername`),
-  ADD KEY `fk_gamedata_game_idx` (`game_gameid`);
+  ADD KEY `fk_gamedata_player1_idx` (`Player_PlayerName`),
+  ADD KEY `fk_gamedata_game_idx` (`Game_GameID`);
 
 ALTER TABLE `player`
-  ADD PRIMARY KEY (`playername`);
+  ADD PRIMARY KEY (`PlayerName`);
 
 ALTER TABLE `subscription`
-  ADD KEY `fk_subscription_player1_idx` (`player_playername`),
-  ADD KEY `fk_player_game_1` (`game_gameid`);
+  ADD KEY `fk_subscription_player1_idx` (`Player_PlayerName`),
+  ADD KEY `fk_player_game_1` (`Game_GameID`);
 
 
 ALTER TABLE `game`
-  MODIFY `gameid` int(11) NOT NULL AUTO_INCREMENT , AUTO_INCREMENT=238733;
+  MODIFY `GameID` int(11) NOT NULL AUTO_INCREMENT , AUTO_INCREMENT=238733;
 
 ALTER TABLE `gamedata`
-  ADD CONSTRAINT `fk_game_game_0` FOREIGN KEY (`game_gameid`) REFERENCES `game` (`gameid`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_game_game_0` FOREIGN KEY (`Game_GameID`) REFERENCES `game` (`GameID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `subscription`
-  ADD CONSTRAINT `fk_player_game_1` FOREIGN KEY (`game_gameid`) REFERENCES `game` (`gameid`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_player_player_0` FOREIGN KEY (`player_playername`) REFERENCES `player` (`playername`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_player_game_1` FOREIGN KEY (`Game_GameID`) REFERENCES `game` (`GameID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_player_player_0` FOREIGN KEY (`Player_PlayerName`) REFERENCES `player` (`PlayerName`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

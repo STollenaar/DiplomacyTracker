@@ -55,11 +55,12 @@ module.exports = {
 			}
 			else {
 				const embed = new RichEmbed();
+				embed.setTitle(`Game ${args[2]} as of ${game[0].date}`);
 				const filter = (reaction, user) => {
 					return ['🚗', '🏭', '🌎', '🔤', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
 				};
 
-				module.exports.leaderBoardbuilder(embed, -1, game);
+				this.leaderBoardbuilder(embed, -1, game);
 
 				// scrolling through map timeline
 				const embedMessage = await message.reply(embed);

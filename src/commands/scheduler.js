@@ -16,7 +16,7 @@ let config;
 let mapHandler;
 
 module.exports = {
-	init(d, c, co, m, l, rich) {
+	init(d, c, co, m, rich) {
 		database = d;
 		mapHandler = m;
 		client = c;
@@ -48,7 +48,6 @@ module.exports = {
 		games.forEach(async (g) => {
 			if (g.phase !== 'Finished') {
 				const siteContent = await module.exports.httpGet(g.GameID);
-
 				subscriptionHandler.setSiteContent(siteContent);
 
 				const $ = cheerio.load(siteContent);
@@ -146,6 +145,6 @@ module.exports = {
 		else {
 			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, 'starting', 'Open');
 		}
-		module.exports.stateCheck();
+		this.stateCheck();
 	},
 };

@@ -21,7 +21,7 @@ module.exports = {
 	// checking if player exists if not adding to db
 	playerExists(player) {
 		db.query(`SELECT PlayerName FROM player WHERE PlayerName = '${player}';`, (_err, row) => {
-			if (row === undefined) {
+			if (row.length === 0) {
 				module.exports.addPlayer(player);
 			}
 		});
@@ -94,9 +94,10 @@ module.exports = {
 	},
 
 	// queryting query the gamedata
-	getGameData(gameID) {
+	getAllGameData(gameID) {
 		return new Promise((resolve) => {
-			db.query(`SELECT * FROM gamedata WHERE Game_GAMEID =${gameID};`, (_err, row) => resolve(row[0]));
+			db.query(`SELECT d.*, g.date FROM gamedata d INNER JOIN game g 
+			WHERE Game_GameID =${gameID} AND GameID=${gameID};`, (_err, row) => resolve(row));
 		});
 	},
 
@@ -144,7 +145,7 @@ module.exports = {
 				Site: 'http://localhost/',
 			};
 			const json = JSON.stringify(object, null, 4);
-			fs.writeFile('./config.json', json, 'utf8', () => resolve());
+			fs.writeFile(__dirname + '/config.json', json, 'utf8', () => resolve());
 		});
 	},
 };

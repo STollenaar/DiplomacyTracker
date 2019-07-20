@@ -15,18 +15,19 @@ let mapHandler;
 // Initialize Discord Bot
 const client = new Client();
 
-// eslint-disable-next-line promise/prefer-await-to-callbacks
-fs.stat('./config.json', async (err) => {
-	if (err === null) {
-		config = require('./config.json');
-	}
-	else if (err.code === 'ENOENT') {
-		console.log('Deploying config');
-		await database.defaultConfig(fs);
-		config = require('./config.json');
-	}
-	client.login(config.AuthTkn);
-});
+const main = () => {
+	fs.stat(__dirname + '/config.json', async (err) => {
+		if (err) {
+			console.log('Deploying config');
+			await database.defaultConfig(fs);
+			config = require('./config.json');
+		}
+		else {
+			config = require('./config.json');
+		}
+		client.login(config.AuthTkn);
+	});
+};
 
 // simple help handler
 function helpCommandHandler(message) {
@@ -45,8 +46,9 @@ function helpCommandHandler(message) {
 client.on('ready', () => {
 	console.log('Connected');
 
-	scheduler = require('./commands/scheduler').init(database, client, config, mapHandler, leadboardHandler, RichEmbed);
 	mapHandler = require('./commands/map').init(RichEmbed, database, config);
+	scheduler = require('./commands/scheduler').init(database, client, config, mapHandler, RichEmbed);
+	
 
 	console.log('loading complete');
 });
@@ -89,3 +91,5 @@ client.on('message', (message) => {
 		}
 	}
 });
+
+main();

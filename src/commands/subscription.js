@@ -43,7 +43,7 @@ module.exports = {
 				message.reply("Subscriptions aren't possible in Anonymous games.");
 			}
 			else {
-				game = await database.getGameData(args[0], args[1]);
+				game = await database.getGameDataPlayer(args[0], args[1]);
 				if (game === undefined) {
 					message.reply('Invalid GameID or playername');
 				}
