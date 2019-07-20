@@ -145,7 +145,7 @@ module.exports = {
 				Site: 'http://localhost/',
 			};
 			const json = JSON.stringify(object, null, 4);
-			fs.writeFile(__dirname + '/config.json', json, 'utf8', () => resolve());
+			fs.writeFile(__dirname.concat('/config.json'), json, 'utf8', () => resolve());
 		});
 	},
 };

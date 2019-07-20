@@ -16,7 +16,8 @@ let mapHandler;
 const client = new Client();
 
 const main = () => {
-	fs.stat(__dirname + '/config.json', async (err) => {
+	// eslint-disable-next-line promise/prefer-await-to-callbacks
+	fs.stat(__dirname.concat('/config.json'), async (err) => {
 		if (err) {
 			console.log('Deploying config');
 			await database.defaultConfig(fs);
@@ -48,7 +49,6 @@ client.on('ready', () => {
 
 	mapHandler = require('./commands/map').init(RichEmbed, database, config);
 	scheduler = require('./commands/scheduler').init(database, client, config, mapHandler, RichEmbed);
-	
 
 	console.log('loading complete');
 });
