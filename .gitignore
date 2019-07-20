@@ -6,10 +6,9 @@
 *.user
 *.userosscache
 *.sln.docstates
-auth.json
 config.json
 node_modules/
-DiplomacyBot/
+*.code-workspace
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
