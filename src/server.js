@@ -3,7 +3,7 @@
 
 // eslint-disable-next-line node/no-missing-require
 const {Client, RichEmbed} = require('discord.js');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 const database = require('./database');
 const leadboardHandler = require('./commands/leaderboard').init(RichEmbed, database);
@@ -11,6 +11,7 @@ const leadboardHandler = require('./commands/leaderboard').init(RichEmbed, datab
 let config;
 let scheduler;
 let mapHandler;
+let slideHandler;
 
 // Initialize Discord Bot
 const client = new Client();
@@ -49,7 +50,7 @@ client.on('ready', () => {
 
 	mapHandler = require('./commands/map').init(RichEmbed, database, config);
 	scheduler = require('./commands/scheduler').init(database, client, config, mapHandler, RichEmbed);
-
+	slideHandler = require('./commands/slide').init(RichEmbed, database, config);
 	console.log('loading complete');
 });
 
@@ -82,6 +83,9 @@ client.on('message', (message) => {
 						scheduler.addGame(args[0], args[1], args[2]);
 					}
 					// }
+					break;
+				case 'slide':
+					slideHandler.commandHandler(message);
 					break;
 				case 'help':
 				default:

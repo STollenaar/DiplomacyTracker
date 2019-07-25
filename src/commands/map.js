@@ -2,6 +2,8 @@
 /* eslint-disable no-negated-condition */
 'use strict';
 
+const {getLatestMapIndex, indexToDate} = require('../util');
+
 let RichEmbed;
 let database;
 let site;
@@ -25,7 +27,7 @@ module.exports = {
 			const games = await database.getGames();
 			const embed = new RichEmbed();
 			embed.setDescription('Need to specify gameID.');
-			console.log(games);
+
 			games.forEach((g) => {
 				embed.addField(`ID: ${g.GameID}`, `Current Date of this game: ${g.date}`);
 			});
@@ -68,7 +70,7 @@ module.exports = {
 							}
 							break;
 						case '▶':
-							if (mapIndex < module.exports.getLatestMapIndex(-2, game)) {
+							if (mapIndex < getLatestMapIndex(-2, game)) {
 								mapIndex++;
 							}
 							else {
@@ -76,7 +78,7 @@ module.exports = {
 							}
 							break;
 						case '⏭':
-							mapIndex = module.exports.getLatestMapIndex(-2, game);
+							mapIndex = getLatestMapIndex(-2, game);
 							break;
 						case '⏮':
 							mapIndex = -1;
@@ -84,7 +86,7 @@ module.exports = {
 					}
 
 					// completing edit
-					editEmbed.setTitle(module.exports.indexToDate(game));
+					editEmbed.setTitle(indexToDate(game));
 					editEmbed.setImage(module.exports.getMapSrc(mapIndex, game));
 					embedMessage.edit(editEmbed);
 				});
@@ -101,35 +103,7 @@ module.exports = {
 	},
 
 	getMapSrc(index, game) {
-		mapIndex = this.getLatestMapIndex(index, game);
+		mapIndex = getLatestMapIndex(index, game);
 		return `${site}map.php?gameID=${game.GameID}&turn=${mapIndex}`;
 	},
-
-	indexToDate(game) {
-		const diff = Math.abs(mapIndex - this.getLatestMapIndex(-2, game));
-
-		let [season, year] = game.date.split(', ');
-
-		// switching the season correctly
-		if (!(diff % 2 === 0)) {
-			if (season === 'Spring') {
-				season = 'Autum';
-			}
-			else {
-				season = 'Spring';
-			}
-		}
-		// setting the year correctly
-		year -= Math.ceil(diff / 2);
-		return `${season} ${year}`;
-	},
-
-	// gets a correct map index
-	getLatestMapIndex(index, game) {
-		if (index !== -2) { return index; }
-
-		const [season, year] = game.date.split(', ');
-		return (year - game.startYear) * 2 + (season === game.startSeason ? 0 : 1);// returning the correct map index
-	},
-
 };

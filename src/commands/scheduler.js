@@ -4,6 +4,7 @@
 const request = require('request');
 const parser = require('cheerio-tableparser');
 const cheerio = require('cheerio');
+const {indexToStartDate} = require('../util');
 
 let database;
 
@@ -136,10 +137,14 @@ module.exports = {
 		subscriptionHandler.commandHandler(message);
 	},
 
-	async addGame(id, startYear, startSeason) {
+	async addGame(id) {
 		const body = await this.httpGet(id);
 		const $ = cheerio.load(body);
-		if ($('span.gamePotType').text().includes('Anonymous')) {
+		const index = $('img[id="mapImage"]').attr('src').split('/')[4].split('-')[0];
+		const year = $('span[class="gameDate"]').text().split(', ')[1];
+		const season = $('span[class="gameDate"]').text().split(', ')[0];
+		const {startSeason, startYear} = indexToStartDate(index, season, year);
+		if ($('span[id="gamePotType"]').text().includes('Anonymous')) {
 			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, 'starting', 'Anonymous');
 		}
 		else {
