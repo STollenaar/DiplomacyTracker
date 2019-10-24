@@ -38,6 +38,8 @@ module.exports = {
 		else {
 			const body = await this.httpGetGame(args[0]);
 			const $ = cheerio.load(body);
+
+			// find fail safe
 			const index = $('img[id="mapImage"]').attr('src').split('/')[4].split('-')[0];
 			const maps = [];
 

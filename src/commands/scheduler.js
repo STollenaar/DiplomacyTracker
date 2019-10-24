@@ -47,6 +47,21 @@ module.exports = {
 	async stateCheck() {
 		const games = await database.getGames();
 		games.forEach(async (g) => {
+			if (g.phase === 'Pre-game') {
+				const siteContent = await module.exports.httpGet(g.GameID);
+				subscriptionHandler.setSiteContent(siteContent);
+
+				const $ = cheerio.load(siteContent);
+				parser($);
+
+				const phase = $('span.gamePhase').text();
+				if (phase !== g.phase) {
+					database.updateGamePhase(g.GameID, phase);
+					this.stateCheck();
+					return;
+				}
+			}
+
 			if (g.phase !== 'Finished') {
 				const siteContent = await module.exports.httpGet(g.GameID);
 				subscriptionHandler.setSiteContent(siteContent);
@@ -144,11 +159,12 @@ module.exports = {
 		const year = $('span[class="gameDate"]').text().split(', ')[1];
 		const season = $('span[class="gameDate"]').text().split(', ')[0];
 		const {startSeason, startYear} = indexToStartDate(index, season, year);
+		const phase = $('span.gamePhase').text();
 		if ($('span[id="gamePotType"]').text().includes('Anonymous')) {
-			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, 'starting', 'Anonymous');
+			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, phase, 'Anonymous');
 		}
 		else {
-			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, 'starting', 'Open');
+			database.addGame(id, startYear, startSeason, `${startSeason}, ${startYear}`, phase, 'Open');
 		}
 		this.stateCheck();
 	},

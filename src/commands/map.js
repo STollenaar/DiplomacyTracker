@@ -86,7 +86,8 @@ module.exports = {
 					}
 
 					// completing edit
-					editEmbed.setTitle(indexToDate(game));
+					const date = indexToDate(game, mapIndex);
+					editEmbed.setTitle(`Map as of ${date.season}, ${date.year}`);
 					editEmbed.setImage(module.exports.getMapSrc(mapIndex, game));
 					embedMessage.edit(editEmbed);
 				});
